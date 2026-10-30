@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0-windows</TargetFramework>
+        <RootNamespace>kohya_ss_workspace_WPFver</RootNamespace>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
+      <PackageReference Include="MahApps.Metro" Version="3.0.0-rc0529" />
+      <PackageReference Include="SkiaSharp" Version="4.156.0-preview.1.26512.10" />
+      <PackageReference Include="SkiaSharp.Views.WPF" Version="4.156.0-preview.1.26512.10" />
+    </ItemGroup>
+
+</Project>

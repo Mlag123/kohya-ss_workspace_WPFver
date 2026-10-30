@@ -1,0 +1,266 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "kohya-ss_workspace_WPFver/1.0.0": {
+        "dependencies": {
+          "FFMediaToolkit": "4.8.1",
+          "MahApps.Metro": "3.0.0-rc0529",
+          "SkiaSharp": "4.156.0-preview.1.26512.10",
+          "SkiaSharp.Views.WPF": "4.156.0-preview.1.26512.10"
+        },
+        "runtime": {
+          "kohya-ss_workspace_WPFver.dll": {}
+        }
+      },
+      "ControlzEx/7.0.2": {
+        "dependencies": {
+          "Microsoft.Xaml.Behaviors.Wpf": "1.1.135"
+        },
+        "runtime": {
+          "lib/net8.0-windows7.0/ControlzEx.dll": {
+            "assemblyVersion": "7.0.0.0",
+            "fileVersion": "7.0.2.0"
+          }
+        }
+      },
+      "FFMediaToolkit/4.8.1": {
+        "dependencies": {
+          "FFmpeg.AutoGen": "7.1.1"
+        },
+        "runtime": {
+          "lib/netstandard2.1/FFMediaToolkit.dll": {
+            "assemblyVersion": "4.0.0.0",
+            "fileVersion": "4.8.1.0"
+          }
+        }
+      },
+      "FFmpeg.AutoGen/7.1.1": {
+        "runtime": {
+          "lib/netstandard2.1/FFmpeg.AutoGen.dll": {
+            "assemblyVersion": "7.1.1.0",
+            "fileVersion": "7.1.1.0"
+          }
+        }
+      },
+      "MahApps.Metro/3.0.0-rc0529": {
+        "dependencies": {
+          "ControlzEx": "7.0.2"
+        },
+        "runtime": {
+          "lib/net8.0-windows7.0/MahApps.Metro.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.0.529"
+          }
+        },
+        "resources": {
+          "lib/net8.0-windows7.0/de/MahApps.Metro.resources.dll": {
+            "locale": "de"
+          }
+        }
+      },
+      "Microsoft.Xaml.Behaviors.Wpf/1.1.135": {
+        "runtime": {
+          "lib/net6.0-windows7.0/Microsoft.Xaml.Behaviors.dll": {
+            "assemblyVersion": "1.1.0.0",
+            "fileVersion": "1.1.135.29210"
+          }
+        }
+      },
+      "OpenTK/3.3.1": {
+        "runtime": {
+          "lib/net20/OpenTK.dll": {
+            "assemblyVersion": "3.3.1.0",
+            "fileVersion": "3.3.1.0"
+          }
+        }
+      },
+      "OpenTK.GLWpfControl/3.3.0": {
+        "dependencies": {
+          "OpenTK": "3.3.1"
+        },
+        "runtime": {
+          "lib/net452/GLWpfControl.dll": {
+            "assemblyVersion": "3.3.0.0",
+            "fileVersion": "3.3.0.0"
+          }
+        }
+      },
+      "SkiaSharp/4.156.0-preview.1.26512.10": {
+        "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "4.156.0-preview.1.26512.10",
+          "SkiaSharp.NativeAssets.macOS": "4.156.0-preview.1.26512.10"
+        },
+        "runtime": {
+          "lib/net10.0/SkiaSharp.dll": {
+            "assemblyVersion": "4.156.0.0",
+            "fileVersion": "4.156.0.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.macOS/4.156.0-preview.1.26512.10": {
+        "runtimeTargets": {
+          "runtimes/osx/native/libSkiaSharp.dylib": {
+            "rid": "osx",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SkiaSharp.NativeAssets.Win32/4.156.0-preview.1.26512.10": {
+        "runtimeTargets": {
+          "runtimes/win-arm64/native/libSkiaSharp.dll": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-arm64/native/libSkiaSharp.pdb": {
+            "rid": "win-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/libSkiaSharp.dll": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x64/native/libSkiaSharp.pdb": {
+            "rid": "win-x64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/libSkiaSharp.dll": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
+          "runtimes/win-x86/native/libSkiaSharp.pdb": {
+            "rid": "win-x86",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          }
+        }
+      },
+      "SkiaSharp.Views.Desktop.Common/4.156.0-preview.1.26512.10": {
+        "dependencies": {
+          "SkiaSharp": "4.156.0-preview.1.26512.10"
+        },
+        "runtime": {
+          "lib/net10.0/SkiaSharp.Views.Desktop.Common.dll": {
+            "assemblyVersion": "4.156.0.0",
+            "fileVersion": "4.156.0.0"
+          }
+        }
+      },
+      "SkiaSharp.Views.WPF/4.156.0-preview.1.26512.10": {
+        "dependencies": {
+          "OpenTK": "3.3.1",
+          "OpenTK.GLWpfControl": "3.3.0",
+          "SkiaSharp": "4.156.0-preview.1.26512.10",
+          "SkiaSharp.Views.Desktop.Common": "4.156.0-preview.1.26512.10"
+        },
+        "runtime": {
+          "lib/net462/SkiaSharp.Views.WPF.dll": {
+            "assemblyVersion": "4.156.0.0",
+            "fileVersion": "4.156.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "kohya-ss_workspace_WPFver/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "ControlzEx/7.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PqQ/K4AnVjn64r52lvMrKDaJxdlF2AJJlRZCuF2NvXe6S420CDIFu7h3eHOzi2CeKsNU/qpI5qwut4WZ4RSrAg==",
+      "path": "controlzex/7.0.2",
+      "hashPath": "controlzex.7.0.2.nupkg.sha512"
+    },
+    "FFMediaToolkit/4.8.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ji29q4A82Ii/yPjwR2RdoMNm8CP3f21nWPzOsZAUADpcV37YXPKyJHQACZFes7DWE0z4CuUBUjLwQHwku0qqRw==",
+      "path": "ffmediatoolkit/4.8.1",
+      "hashPath": "ffmediatoolkit.4.8.1.nupkg.sha512"
+    },
+    "FFmpeg.AutoGen/7.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-p4FGdG654zut4Iseg7PeYo7sxFMOTuLTEKl/vX+44UQ6NmezF3wHcR6JzjH8xzK4VDPLJe5Xz563kXamMQj7Jg==",
+      "path": "ffmpeg.autogen/7.1.1",
+      "hashPath": "ffmpeg.autogen.7.1.1.nupkg.sha512"
+    },
+    "MahApps.Metro/3.0.0-rc0529": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3k5YxcSiBEuUJ//8I0nwHTBPAgiaZ3Jb78wdpsSVc+uXPSU4Xvv/D2uqXB6XOszO1X5XFubFNCzFniwbdE4TNg==",
+      "path": "mahapps.metro/3.0.0-rc0529",
+      "hashPath": "mahapps.metro.3.0.0-rc0529.nupkg.sha512"
+    },
+    "Microsoft.Xaml.Behaviors.Wpf/1.1.135": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-r8qBEXmQfORso2+MVHnt8PSH4761zJ0SIxgQTSEDVLU97EN2FZdG6/ZCYUPhQy+OrPKgnpYBCAs3PS6Bs7wRsg==",
+      "path": "microsoft.xaml.behaviors.wpf/1.1.135",
+      "hashPath": "microsoft.xaml.behaviors.wpf.1.1.135.nupkg.sha512"
+    },
+    "OpenTK/3.3.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vJ00JIs0EOEhqU3+1w6ocurNUFaewd7YXV8sixI029AQeQaht0QjDGgXm2Fk/y8A5Wtx6UsmrjJDKi4USoVeSg==",
+      "path": "opentk/3.3.1",
+      "hashPath": "opentk.3.3.1.nupkg.sha512"
+    },
+    "OpenTK.GLWpfControl/3.3.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-viHlwA0RIYLA1EyoA+gOkfqpA9xMZV6HigVYhaHaEsYb3jk518RdCKEdFggu/P4oYUNYZmmHaUYDC9pwarkXjA==",
+      "path": "opentk.glwpfcontrol/3.3.0",
+      "hashPath": "opentk.glwpfcontrol.3.3.0.nupkg.sha512"
+    },
+    "SkiaSharp/4.156.0-preview.1.26512.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pLjw+uN8V64rn5v+JOpF/CckO4++h4HjvFAU4OhkUgzRDDdOymt669PIrOozfDd+DR9zmeGnAREKXUbZhW+Zfw==",
+      "path": "skiasharp/4.156.0-preview.1.26512.10",
+      "hashPath": "skiasharp.4.156.0-preview.1.26512.10.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.macOS/4.156.0-preview.1.26512.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-HGE5mvdVy39qvPubDKqcj2NHspWOB3ZhxMr4F+6tTNysTyUjwYYJ0f0PMmQNkp2RewGiHfpDtib1v1jdd1HS+Q==",
+      "path": "skiasharp.nativeassets.macos/4.156.0-preview.1.26512.10",
+      "hashPath": "skiasharp.nativeassets.macos.4.156.0-preview.1.26512.10.nupkg.sha512"
+    },
+    "SkiaSharp.NativeAssets.Win32/4.156.0-preview.1.26512.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-uztKI2iI36TljjzgS5ST9vxn6AY6u6TYpagkCHdY8hB1AdKf9ceWSc8Z8WoQ4ZgVQZfmFw1iVF8C81thGzo9xw==",
+      "path": "skiasharp.nativeassets.win32/4.156.0-preview.1.26512.10",
+      "hashPath": "skiasharp.nativeassets.win32.4.156.0-preview.1.26512.10.nupkg.sha512"
+    },
+    "SkiaSharp.Views.Desktop.Common/4.156.0-preview.1.26512.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Bt+MdphbxUAyc78YtctKXfmxtS0yJvguqhHpn+Vv5V/KilblnxrrosuxvV/Fp8PwunDFCG+baLHbJaThHn4Ycw==",
+      "path": "skiasharp.views.desktop.common/4.156.0-preview.1.26512.10",
+      "hashPath": "skiasharp.views.desktop.common.4.156.0-preview.1.26512.10.nupkg.sha512"
+    },
+    "SkiaSharp.Views.WPF/4.156.0-preview.1.26512.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mGGYCbXaawei3BPsbrczOzoWviKsLRDG4gzn3NePtOqhGxcv8Gw5TLyTCXSwLhzMn+2rXDa927Qy7CaIDgMlKw==",
+      "path": "skiasharp.views.wpf/4.156.0-preview.1.26512.10",
+      "hashPath": "skiasharp.views.wpf.4.156.0-preview.1.26512.10.nupkg.sha512"
+    }
+  }
+}

@@ -1,0 +1,96 @@
+﻿<Controls:MetroWindow x:Class="kohya_ss_workspace_WPFver.MainWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:local="clr-namespace:kohya_ss_workspace_WPFver"
+                      xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      mc:Ignorable="d"
+                      Title="ILoveHoodwink" Height="720" Width="1280">
+    
+    <!-- ImageFrame -->
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            
+            <RowDefinition Height="3*"></RowDefinition>
+            
+            <RowDefinition Height="1*"></RowDefinition>
+
+            
+        </Grid.RowDefinitions>
+        
+        
+            <Image x:Name="PictureOutputMedia" Grid.Row="0" Grid.Column="0" ></Image>        
+        <!-- Timeline -->
+        <Grid Grid.Row="1" ShowGridLines="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="2*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+
+            </Grid.ColumnDefinitions>
+            
+            <Grid.RowDefinitions>
+                
+                <RowDefinition Height="0.8*"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0" ShowGridLines="False">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="resX" Grid.Column="0" Margin="2" Controls:TextBoxHelper.Watermark="Resolution W"></TextBox>
+                <TextBox x:Name="rexY" Grid.Column="1" Margin="2" Controls:TextBoxHelper.Watermark="Resolution H"></TextBox>
+            </Grid>
+          
+            <StackPanel Grid.Row="0" Grid.Column="1">
+                <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged"></Slider>
+                <TextBlock x:Name="VideoTimelineLayout" FontSize="14"  TextWrapping="Wrap" Text=""></TextBlock>
+            </StackPanel>
+            
+            
+            <Grid ShowGridLines="False" Grid.Row="1" Grid.Column="1">
+                
+                    <Grid.RowDefinitions>
+                        
+                        <RowDefinition Height="3*"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+                        <RowDefinition Height="1*"></RowDefinition>
+
+
+                    </Grid.RowDefinitions>
+                
+                <TextBox x:Name="prompt" Grid.Row="0" Controls:TextBoxHelper.Watermark="Enter Prompt" ></TextBox>
+                <Button x:Name="saveBut" Grid.Row="1" Content="Save Picture And Prompt" Click="SaveBut_OnClick"></Button>
+                <Button Grid.Row="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!"></Button>
+                
+            </Grid>
+            
+            <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    
+                    
+                </Grid.RowDefinitions>
+                
+                <TextBox x:Name="filename" Controls:TextBoxHelper.Watermark="Image Name"></TextBox>
+                <Button Grid.Row="1" x:Name="filePicker" Click="FilePicker_OnClick" Content="File Picker"></Button>
+                <Button Grid.Row="2" x:Name="outputFolderPicker" Click="OutputFolderPicker_OnClick" Content="Output Folder Picker" >  </Button>
+                
+                
+            </Grid>
+            
+            <TextBox x:Name="console" Grid.Column="2" Grid.Row="1" Controls:TextBoxHelper.Watermark="Console View"></TextBox>
+            
+        </Grid>
+        
+        
+      
+    </Grid>
+</Controls:MetroWindow>
+
