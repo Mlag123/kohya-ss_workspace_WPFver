@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -150,7 +151,9 @@ public partial class MainWindow : MetroWindow
         {
             if (image != null)
             {
-                _imageSaver.saveToJson(seconds, prompt.Text);
+                
+                
+                _imageSaver.saveToJson(filename.Text,int.Parse(resX.Text),int.Parse(resY.Text),seconds, prompt.Text);
                 debugText($"Frame Saved {seconds}");
             }
             else
@@ -162,6 +165,87 @@ public partial class MainWindow : MetroWindow
         catch (TakeException)
         {
             debugText($"The frame already exists");
+        }
+    }
+    private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
+    {
+
+        e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
+    }
+
+    private void ToggleSwitch_OnToggled(object sender, RoutedEventArgs e)
+    {
+        if (Switch.IsOn == true)
+        {
+            MainGrid.Visibility = Visibility.Collapsed;
+            SecondGrid.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            MainGrid.Visibility = Visibility.Visible;
+            SecondGrid.Visibility = Visibility.Collapsed;  
+        }
+    }
+    
+    
+    //_________________________________________________________________________//
+
+    private bool _isDragging = false;
+    private Point _startPoint;
+
+// Нажали кнопку мыши
+    private void CropCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        _isDragging = true;
+        _startPoint = e.GetPosition(CropCanvas);
+        
+      
+
+        Canvas.SetLeft(SelectionRect, _startPoint.X);
+        Canvas.SetTop(SelectionRect, _startPoint.Y);
+        SelectionRect.Width = 0;
+        SelectionRect.Height = 0;
+        SelectionRect.Visibility = Visibility.Visible;
+    }
+
+    private void CropCanvas_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_isDragging) return;
+
+        Point currentPoint = e.GetPosition(CropCanvas);
+
+        // Считаем координаты (чтобы работало в любую сторону)
+        double x = Math.Min(_startPoint.X, currentPoint.X);
+        double y = Math.Min(_startPoint.Y, currentPoint.Y);
+        double w = Math.Abs(_startPoint.X - currentPoint.X);
+        double h = Math.Abs(_startPoint.Y - currentPoint.Y);
+        Canvas.SetLeft(SelectionRect, x);
+        Canvas.SetTop(SelectionRect, y);
+        SelectionRect.Width = w;
+        SelectionRect.Height = h;
+    }
+
+
+    private List<SavedFrame> imageSaved_array;
+    private void CropCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        _isDragging = false;
+    }
+
+
+    private void LoadEdit_OnClick(object sender, RoutedEventArgs e)
+    {
+        imageSaved_array = _imageSaver.LoadFromJson();
+    
+        // Ёбаный правильный путь
+        ListBox.ItemsSource = imageSaved_array;
+    }
+    private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ListBox.SelectedItem is SavedFrame frame)
+        {
+            ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(frame.Seconds);
+
         }
     }
 }

@@ -7,90 +7,178 @@
                       xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
                       mc:Ignorable="d"
                       Title="ILoveHoodwink" Height="720" Width="1280">
-    
-    <!-- ImageFrame -->
-    <Grid ShowGridLines="False">
+
+    <Grid ShowGridLines="True">
+
         <Grid.RowDefinitions>
-            
-            <RowDefinition Height="3*"></RowDefinition>
-            
-            <RowDefinition Height="1*"></RowDefinition>
-
-            
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="0.1*"></RowDefinition>
         </Grid.RowDefinitions>
-        
-        
-            <Image x:Name="PictureOutputMedia" Grid.Row="0" Grid.Column="0" ></Image>        
-        <!-- Timeline -->
-        <Grid Grid.Row="1" ShowGridLines="False">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
-                <ColumnDefinition Width="2*"></ColumnDefinition>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
-
-            </Grid.ColumnDefinitions>
-            
+        <!-- ImageFrame -->
+        <Grid x:Name="MainGrid" Visibility="Hidden" Grid.Row="0" ShowGridLines="False">
             <Grid.RowDefinitions>
-                
-                <RowDefinition Height="0.8*"></RowDefinition>
-                <RowDefinition Height="2*"></RowDefinition>
+
+                <RowDefinition Height="3*"></RowDefinition>
+
+                <RowDefinition Height="1*"></RowDefinition>
+
 
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" ShowGridLines="False">
+
+
+            <Image x:Name="PictureOutputMedia" Grid.Row="0" Grid.Column="0"></Image>
+            <!-- Timeline -->
+            <Grid Grid.Row="1" ShowGridLines="False">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition></ColumnDefinition>
-                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="2*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="resX" Grid.Column="0" Margin="2" Controls:TextBoxHelper.Watermark="Resolution W"></TextBox>
-                <TextBox x:Name="rexY" Grid.Column="1" Margin="2" Controls:TextBoxHelper.Watermark="Resolution H"></TextBox>
-            </Grid>
-          
-            <StackPanel Grid.Row="0" Grid.Column="1">
-                <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged"></Slider>
-                <TextBlock x:Name="VideoTimelineLayout" FontSize="14"  TextWrapping="Wrap" Text=""></TextBlock>
-            </StackPanel>
-            
-            
-            <Grid ShowGridLines="False" Grid.Row="1" Grid.Column="1">
-                
+
+                <Grid.RowDefinitions>
+
+                    <RowDefinition Height="0.8*"></RowDefinition>
+                    <RowDefinition Height="2*"></RowDefinition>
+
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="resX" Grid.Column="0" Margin="2" PreviewTextInput="NumberValidationTextBox"
+                             Controls:TextBoxHelper.Watermark="Resolution W">
+                    </TextBox>
+                    <TextBox x:Name="resY" Grid.Column="1" Margin="2" PreviewTextInput="NumberValidationTextBox"
+                             Controls:TextBoxHelper.Watermark="Resolution H">
+                    </TextBox>
+                </Grid>
+
+                <StackPanel Grid.Row="0" Grid.Column="1">
+                    <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged"></Slider>
+                    <TextBlock x:Name="VideoTimelineLayout" FontSize="14" TextWrapping="Wrap" Text=""></TextBlock>
+                </StackPanel>
+
+
+                <Grid ShowGridLines="False" Grid.Row="1" Grid.Column="1">
+
                     <Grid.RowDefinitions>
-                        
+
                         <RowDefinition Height="3*"></RowDefinition>
                         <RowDefinition Height="1*"></RowDefinition>
                         <RowDefinition Height="1*"></RowDefinition>
 
 
                     </Grid.RowDefinitions>
-                
-                <TextBox x:Name="prompt" Grid.Row="0" Controls:TextBoxHelper.Watermark="Enter Prompt" ></TextBox>
-                <Button x:Name="saveBut" Grid.Row="1" Content="Save Picture And Prompt" Click="SaveBut_OnClick"></Button>
-                <Button Grid.Row="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!"></Button>
-                
-            </Grid>
-            
-            <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="False">
-                <Grid.RowDefinitions>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    <RowDefinition></RowDefinition>
-                    
-                    
-                </Grid.RowDefinitions>
-                
-                <TextBox x:Name="filename" Controls:TextBoxHelper.Watermark="Image Name"></TextBox>
-                <Button Grid.Row="1" x:Name="filePicker" Click="FilePicker_OnClick" Content="File Picker"></Button>
-                <Button Grid.Row="2" x:Name="outputFolderPicker" Click="OutputFolderPicker_OnClick" Content="Output Folder Picker" >  </Button>
-                
-                
-            </Grid>
-            
-            <TextBox x:Name="console" Grid.Column="2" Grid.Row="1" Controls:TextBoxHelper.Watermark="Console View"></TextBox>
-            
-        </Grid>
-        
-        
-      
-    </Grid>
-</Controls:MetroWindow>
 
+                    <TextBox x:Name="prompt" Grid.Row="0" Controls:TextBoxHelper.Watermark="Enter Prompt"></TextBox>
+                    <Button x:Name="saveBut" Grid.Row="1" Content="Save Picture And Prompt" Click="SaveBut_OnClick"></Button>
+                    <Button Grid.Row="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!"></Button>
+
+                </Grid>
+
+                <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="True">
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+
+
+                    </Grid.RowDefinitions>
+
+                    <TextBox x:Name="filename" Controls:TextBoxHelper.Watermark="Image Name"></TextBox>
+                    <Button Grid.Row="1" x:Name="filePicker" Click="FilePicker_OnClick" Content="File Picker"></Button>
+                    <Button Grid.Row="2" x:Name="outputFolderPicker" Click="OutputFolderPicker_OnClick"
+                            Content="Output Folder Picker">
+                    </Button>
+
+
+                </Grid>
+
+                <TextBox x:Name="console" Grid.Column="2" Grid.Row="1" Controls:TextBoxHelper.Watermark="Console View"></TextBox>
+            </Grid>
+
+
+        </Grid>
+
+
+        <!-- Second GRID!!! -->
+        <Grid Grid.Row="0" Grid.ShowGridLines="True" x:Name="SecondGrid" Visibility="Visible">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="3*"></RowDefinition>
+                <RowDefinition Height="1*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Grid ShowGridLines="True" Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="4*"></ColumnDefinition>
+
+                </Grid.ColumnDefinitions>
+
+                <ListBox x:Name="ListBox" Grid.Column="0" SelectionChanged="MyListBox_SelectionChanged" >
+                    
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <!-- Выводим секунды с форматированием -->
+                                <TextBlock Text="{Binding Seconds, StringFormat={}{0:F2} сек}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                <!-- Выводим промпт -->
+                                <TextBlock Text="{Binding Prompt}" TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    
+                </ListBox>
+
+                <Canvas Grid.Column="1" x:Name="CropCanvas" Background="Black" 
+                        ClipToBounds="True" 
+                        MouseLeftButtonDown="CropCanvas_MouseLeftButtonDown" 
+                        MouseMove="CropCanvas_MouseMove" 
+                        MouseLeftButtonUp="CropCanvas_MouseLeftButtonUp">
+                    <Image x:Name="ImageEditor" IsHitTestVisible="False" 
+                           Width="{Binding ActualWidth, ElementName=CropCanvas}" 
+                           Height="{Binding ActualHeight, ElementName=CropCanvas}" 
+                           Stretch="Uniform" />
+
+                    <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#5500FF00" Stroke="Lime" StrokeThickness="2" Visibility="Collapsed"></Rectangle>
+
+                </Canvas>
+
+
+
+            </Grid>
+            <Grid ShowGridLines="True" Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+                    <ColumnDefinition Width="3*"></ColumnDefinition>
+                    <ColumnDefinition Width="1*"></ColumnDefinition>
+
+                </Grid.ColumnDefinitions>
+    
+            </Grid>
+        </Grid>
+
+
+        <Grid Grid.Row="1" ShowGridLines="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+
+
+            </Grid.ColumnDefinitions>
+            <Controls:ToggleSwitch Grid.Column="0" x:Name="Switch" Toggled="ToggleSwitch_OnToggled" Content="Editor"></Controls:ToggleSwitch>
+            <Button x:Name="LoadEdit" Click="LoadEdit_OnClick" Grid.Column="1" Content="Load edit"></Button>
+            <TextBlock Grid.Column="4" Text="By MLag BETA"></TextBlock>
+
+        </Grid>
+
+    </Grid>
+
+
+</Controls:MetroWindow>

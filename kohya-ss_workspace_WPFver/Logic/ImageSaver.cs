@@ -26,7 +26,7 @@ public class ImageSaver
 
     private List<SavedFrame> savedFrames = new List<SavedFrame>();
 
-    public void saveToJson(double seconds, string prompt)
+    public void saveToJson(string filename,int nW, int nH,double seconds, string prompt)
     {
 
         if (File.Exists(jsonFile) && savedFrames.Count == 0)
@@ -43,7 +43,10 @@ public class ImageSaver
         }
 
         var newFrame = new SavedFrame
-        {
+        {   
+            ImageName = filename,
+            nWidth = nW,
+            nHeight = nH,
             Seconds = seconds,
             Prompt = prompt
         };
@@ -95,7 +98,19 @@ public class ImageSaver
         
     }
     
+    public List<SavedFrame> LoadFromJson()
+    {
+        if (!File.Exists(jsonFile))
+        {
+            return new List<SavedFrame>();
+        }
+
+        string json = File.ReadAllText(jsonFile);
     
+        var frames = JsonSerializer.Deserialize<List<SavedFrame>>(json);
+
+        return frames ?? new List<SavedFrame>();
+    }
     
 
 
