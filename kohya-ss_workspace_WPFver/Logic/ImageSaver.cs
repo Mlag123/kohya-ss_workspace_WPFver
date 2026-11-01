@@ -145,6 +145,8 @@ public class ImageSaver
                 encoder.Save(fileStream);
             }
             
+            File.WriteAllText(outputFolder + "/" + frames[i].ImageName + "_" + i + ".txt", frames[i].Prompt);
+            
         }
 
 
