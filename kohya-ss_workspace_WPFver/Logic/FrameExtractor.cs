@@ -70,13 +70,6 @@ public class FrameExtractor
         return writeableBitmap;
     }
 
-
-
-
-    
-  
-
-
     public double getDuration()
     {
         if (mediaFile == null) return 0;
@@ -89,16 +82,5 @@ public class FrameExtractor
     {
         return mediaFile.Video.GetFrame(TimeSpan.FromSeconds(seconds));
     }
-
-
-  
- 
     
-    public void ExtractFrame(string path, int index)
-    {
-    }
-
-    public void ExtractAllFrames()
-    {
-    }
 }

@@ -1,16 +1,8 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Controls.Ribbon;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using kohya_ss_workspace_WPFver.Logic;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
@@ -22,20 +14,20 @@ namespace kohya_ss_workspace_WPFver;
 /// </summary>
 public partial class MainWindow : MetroWindow
 {
+    private string videoPath = null;
     private int Minute;
     private int second;
     private string source_filename;
-    private string _filename;
     private double seconds = 0;
     private string output_path;
     private BitmapSource image;
     private ImageSaver _imageSaver;
-
-    private string test_path =
-        "C:/Users/MLag/RiderProjects/ImageExtractorFromVideo/ImageExtractorFromVideo/bin/Debug/net10.0/test.mp4";
-
-
+    private bool _isDragging = false;
+    private Point _startPoint;
     private FrameExtractor frame_extractor;
+
+
+    private SavedFrame editorFrame;
 
     public MainWindow()
     {
@@ -43,32 +35,32 @@ public partial class MainWindow : MetroWindow
 
 
         frame_extractor = new FrameExtractor();
-        init();
+        Init();
     }
 
 
-    private void dispose()
+    private void ResetState()
     {
         seconds = 0;
         slider.Value = 0;
         console.Text = "";
         try
         {
-            _imageSaver.dispose();
+            _imageSaver.ResetState();
         }
         catch (Exception e)
         {
-            debugText("Failed to dispose/backup");
-            debugText(e.GetBaseException().Message);
+            DebugText("Failed to dispose/backup");
+            DebugText(e.GetBaseException().Message);
         }
     }
 
 
-    public void init()
+    public void Init()
     {
         ImageSaver.initFolders();
         _imageSaver = new ImageSaver();
-        
+
         VideoTimelineLayout.Text = "00:00";
         slider.Maximum = frame_extractor.getDuration();
     }
@@ -84,11 +76,11 @@ public partial class MainWindow : MetroWindow
         }
         catch (Exception)
         {
-            debugText("Video is not loaded!");
+            DebugText("Video is not loaded!");
         }
     }
 
-    public void debugText(string text)
+    public void DebugText(string text)
     {
         console.AppendText($" {text}{Environment.NewLine}");
         console.ScrollToEnd();
@@ -114,10 +106,10 @@ public partial class MainWindow : MetroWindow
 
         if (openFileDialog.ShowDialog() == true)
         {
-            dispose();
-            source_filename = openFileDialog.FileName;
-            debugText($"Opened file: {source_filename}");
-            frame_extractor.LoadVideo(source_filename);
+            ResetState();
+            videoPath = openFileDialog.FileName;
+            DebugText($"Opened file: {videoPath}");
+            frame_extractor.LoadVideo(videoPath);
             slider.Maximum = frame_extractor.getDuration();
             image = frame_extractor.GetFrameAsBitmapSource(seconds);
             updateUI();
@@ -136,70 +128,75 @@ public partial class MainWindow : MetroWindow
         {
             string folder = dialog.FolderName;
             output_path = folder;
-            debugText($"Output folder: {output_path}");
+            DebugText($"Output folder: {output_path}");
         }
     }
 
     private void Generate_OnClick(object sender, RoutedEventArgs e)
     {
-       debugText("WIP");
+        DebugText("WIP");
+        _imageSaver.Generate(output_path);
     }
 
     private void SaveBut_OnClick(object sender, RoutedEventArgs e)
     {
-        try
+        if (IsVideoExist())
         {
-            if (image != null)
+            try
             {
-                
-                
-                _imageSaver.saveToJson(filename.Text,int.Parse(resX.Text),int.Parse(resY.Text),seconds, prompt.Text);
-                debugText($"Frame Saved {seconds}");
+                _imageSaver.SaveToJson(filename.Text, int.Parse(resX.Text), int.Parse(resY.Text), seconds,
+                    prompt.Text, videoPath);
+                DebugText($"Frame Saved {seconds}");
             }
-            else
+            catch (Exception ex)
             {
-                debugText($"Video not loaded!");
+                MessageBox.Show(ex.Message);
             }
-
         }
-        catch (TakeException)
+        else
         {
-            debugText($"The frame already exists");
+            DebugText($"Video not loaded!");
         }
     }
+
+
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
     {
-
         e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
     }
 
     private void ToggleSwitch_OnToggled(object sender, RoutedEventArgs e)
     {
-        if (Switch.IsOn == true)
+        if (Switch.IsOn)
         {
+            generate.Visibility = Visibility.Visible;
             MainGrid.Visibility = Visibility.Collapsed;
             SecondGrid.Visibility = Visibility.Visible;
+            imageSaved_array = _imageSaver.LoadFromJson();
+            ListBox.ItemsSource = imageSaved_array;
         }
         else
         {
             MainGrid.Visibility = Visibility.Visible;
-            SecondGrid.Visibility = Visibility.Collapsed;  
+            SecondGrid.Visibility = Visibility.Collapsed;
+            generate.Visibility = Visibility.Collapsed;
+
         }
     }
-    
-    
-    //_________________________________________________________________________//
 
-    private bool _isDragging = false;
-    private Point _startPoint;
+
+    public bool IsVideoExist() => image != null;
+   
+
+//_________________________________________________________________________//
+
 
 // Нажали кнопку мыши
     private void CropCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         _isDragging = true;
         _startPoint = e.GetPosition(CropCanvas);
-        
-      
+
 
         Canvas.SetLeft(SelectionRect, _startPoint.X);
         Canvas.SetTop(SelectionRect, _startPoint.Y);
@@ -214,7 +211,6 @@ public partial class MainWindow : MetroWindow
 
         Point currentPoint = e.GetPosition(CropCanvas);
 
-        // Считаем координаты (чтобы работало в любую сторону)
         double x = Math.Min(_startPoint.X, currentPoint.X);
         double y = Math.Min(_startPoint.Y, currentPoint.Y);
         double w = Math.Abs(_startPoint.X - currentPoint.X);
@@ -225,8 +221,8 @@ public partial class MainWindow : MetroWindow
         SelectionRect.Height = h;
     }
 
-
     private List<SavedFrame> imageSaved_array;
+
     private void CropCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         _isDragging = false;
@@ -236,16 +232,34 @@ public partial class MainWindow : MetroWindow
     private void LoadEdit_OnClick(object sender, RoutedEventArgs e)
     {
         imageSaved_array = _imageSaver.LoadFromJson();
-    
-        // Ёбаный правильный путь
         ListBox.ItemsSource = imageSaved_array;
     }
+
     private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ListBox.SelectedItem is SavedFrame frame)
         {
-            ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(frame.Seconds);
-
+            editorFrame = frame;
+            
+            frame_extractor.LoadVideo(frame.FilePath);
+            /*editorSeconds = frame.Seconds;
+            PromptEditor.Text = frame.Prompt;#1#*/
+            PromptEditor.Text = editorFrame.Prompt;
+            UpdateEditorUI();
         }
+    }
+
+    public void UpdateEditorUI()
+    {
+        ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(editorFrame.Seconds);
+    }
+
+    private void PromptEditor_OnKeyDown(object sender, KeyEventArgs e)
+    {
+
+        String a = PromptEditor.Text;
+        editorFrame.Prompt = a;
+        _imageSaver.UpdateFrame(editorFrame.Seconds, editorFrame);
+
     }
 }

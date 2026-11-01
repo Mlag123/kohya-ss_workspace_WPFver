@@ -9,7 +9,7 @@ public class SavedFrame
     public int nHeight { get; set; }
     public double Seconds { get; set; }
     public string Prompt { get; set; }
-    
+    public string FilePath { get; set; }
     public override string ToString()
     {
         return $"{Seconds:F2} сек - {Prompt}";

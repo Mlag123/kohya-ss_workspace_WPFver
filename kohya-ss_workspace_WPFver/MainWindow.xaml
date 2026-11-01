@@ -6,7 +6,7 @@
                       xmlns:local="clr-namespace:kohya_ss_workspace_WPFver"
                       xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
                       mc:Ignorable="d"
-                      Title="ILoveHoodwink" Height="720" Width="1280">
+                      Title="Kohya-ssWorkspace" Height="720" Width="1280">
 
     <Grid ShowGridLines="True">
 
@@ -15,7 +15,7 @@
             <RowDefinition Height="0.1*"></RowDefinition>
         </Grid.RowDefinitions>
         <!-- ImageFrame -->
-        <Grid x:Name="MainGrid" Visibility="Hidden" Grid.Row="0" ShowGridLines="False">
+        <Grid x:Name="MainGrid" Visibility="Visible" Grid.Row="0" ShowGridLines="False">
             <Grid.RowDefinitions>
 
                 <RowDefinition Height="3*"></RowDefinition>
@@ -67,15 +67,11 @@
 
                         <RowDefinition Height="3*"></RowDefinition>
                         <RowDefinition Height="1*"></RowDefinition>
-                        <RowDefinition Height="1*"></RowDefinition>
-
 
                     </Grid.RowDefinitions>
 
                     <TextBox x:Name="prompt" Grid.Row="0" Controls:TextBoxHelper.Watermark="Enter Prompt"></TextBox>
                     <Button x:Name="saveBut" Grid.Row="1" Content="Save Picture And Prompt" Click="SaveBut_OnClick"></Button>
-                    <Button Grid.Row="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!"></Button>
-
                 </Grid>
 
                 <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="True">
@@ -105,7 +101,7 @@
 
 
         <!-- Second GRID!!! -->
-        <Grid Grid.Row="0" Grid.ShowGridLines="True" x:Name="SecondGrid" Visibility="Visible">
+        <Grid Grid.Row="0" Grid.ShowGridLines="True" x:Name="SecondGrid" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="3*"></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
@@ -118,35 +114,37 @@
 
                 </Grid.ColumnDefinitions>
 
-                <ListBox x:Name="ListBox" Grid.Column="0" SelectionChanged="MyListBox_SelectionChanged" >
-                    
+                <ListBox x:Name="ListBox" Grid.Column="0" SelectionChanged="MyListBox_SelectionChanged">
+
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
                                 <!-- Выводим секунды с форматированием -->
-                                <TextBlock Text="{Binding Seconds, StringFormat={}{0:F2} сек}" FontWeight="Bold" Margin="0,0,10,0"/>
+                                <TextBlock Text="{Binding Seconds, StringFormat={}{0:F2} сек}" FontWeight="Bold"
+                                           Margin="0,0,10,0" />
                                 <!-- Выводим промпт -->
-                                <TextBlock Text="{Binding Prompt}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding Prompt}" TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                    
+
                 </ListBox>
 
-                <Canvas Grid.Column="1" x:Name="CropCanvas" Background="Black" 
-                        ClipToBounds="True" 
-                        MouseLeftButtonDown="CropCanvas_MouseLeftButtonDown" 
-                        MouseMove="CropCanvas_MouseMove" 
+                <Canvas Grid.Column="1" x:Name="CropCanvas" Background="Black"
+                        ClipToBounds="True"
+                        MouseLeftButtonDown="CropCanvas_MouseLeftButtonDown"
+                        MouseMove="CropCanvas_MouseMove"
                         MouseLeftButtonUp="CropCanvas_MouseLeftButtonUp">
-                    <Image x:Name="ImageEditor" IsHitTestVisible="False" 
-                           Width="{Binding ActualWidth, ElementName=CropCanvas}" 
-                           Height="{Binding ActualHeight, ElementName=CropCanvas}" 
+                    <Image x:Name="ImageEditor" IsHitTestVisible="False"
+                           Width="{Binding ActualWidth, ElementName=CropCanvas}"
+                           Height="{Binding ActualHeight, ElementName=CropCanvas}"
                            Stretch="Uniform" />
 
-                    <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#5500FF00" Stroke="Lime" StrokeThickness="2" Visibility="Collapsed"></Rectangle>
+                    <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#5500FF00" Stroke="Lime"
+                               StrokeThickness="2" Visibility="Collapsed">
+                    </Rectangle>
 
                 </Canvas>
-
 
 
             </Grid>
@@ -157,7 +155,15 @@
                     <ColumnDefinition Width="1*"></ColumnDefinition>
 
                 </Grid.ColumnDefinitions>
-    
+                <Grid Grid.Column="1" ShowGridLines="False">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBox x:Name="PromptEditor" Grid.Column="0"  KeyUp="PromptEditor_OnKeyDown" Controls:TextBoxHelper.Watermark="Prompt Editor"></TextBox>
+
+                </Grid>
+
             </Grid>
         </Grid>
 
@@ -170,11 +176,24 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
 
-
             </Grid.ColumnDefinitions>
             <Controls:ToggleSwitch Grid.Column="0" x:Name="Switch" Toggled="ToggleSwitch_OnToggled" Content="Editor"></Controls:ToggleSwitch>
             <Button x:Name="LoadEdit" Click="LoadEdit_OnClick" Grid.Column="1" Content="Load edit"></Button>
-            <TextBlock Grid.Column="4" Text="By MLag BETA"></TextBlock>
+            <Button Grid.Column="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!" Visibility="Collapsed"></Button>
+
+
+            <Grid Grid.Column="4" ShowGridLines="True">
+                <Grid.ColumnDefinitions>
+
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+
+                </Grid.ColumnDefinitions>
+                <Controls:ToggleSwitch Grid.Column="0" Content="Black/Light"></Controls:ToggleSwitch>
+
+
+            </Grid>
+
 
         </Grid>
 
