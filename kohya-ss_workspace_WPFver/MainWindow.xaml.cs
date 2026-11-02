@@ -36,6 +36,9 @@ public partial class MainWindow : MetroWindow
 
     private CroppedImage currentImage;
 
+
+    private int scaleX, scaleY;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -141,7 +144,7 @@ public partial class MainWindow : MetroWindow
 
     private void Generate_OnClick(object sender, RoutedEventArgs e)
     {
-        _imageSaver.Generate(output_path);
+        _imageSaver.Generate(output_path,croppedImages,scaleX,scaleY);
     }
 
     private void SaveBut_OnClick(object sender, RoutedEventArgs e)
@@ -170,7 +173,9 @@ public partial class MainWindow : MetroWindow
                 return;
             }
 
-
+            scaleX = width;
+            scaleY = height;
+    
             try
             {
                 _imageSaver.SaveToJson(filename.Text, int.Parse(resX.Text), int.Parse(resY.Text), seconds,
@@ -224,7 +229,8 @@ public partial class MainWindow : MetroWindow
                 CropWidth = 0,
                 CropHeight = 0,
                 CropXOffset = 0,
-                CropYOffset = 0
+                CropYOffset = 0,
+                ImageName = frame.ImageName
             };
             croppedImages.Add(clean_crop);
         }

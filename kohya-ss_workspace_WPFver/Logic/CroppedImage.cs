@@ -13,5 +13,6 @@ public class CroppedImage
     public int CropYOffset {get; set;}
     public bool IsCropped {get; set;}
     public string PromptText {get; set;}
+    public string ImageName {get; set;}
     
 }
