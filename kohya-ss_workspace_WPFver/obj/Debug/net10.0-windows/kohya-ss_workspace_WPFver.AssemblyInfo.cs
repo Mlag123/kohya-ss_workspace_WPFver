@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("kohya-ss_workspace_WPFver")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3c81a3321b33c7c2a6c2a020d627010d3638916")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6369587d7f81134fc56a9e1c282a701c1ba30be0")]
 [assembly: System.Reflection.AssemblyProductAttribute("kohya-ss_workspace_WPFver")]
 [assembly: System.Reflection.AssemblyTitleAttribute("kohya-ss_workspace_WPFver")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

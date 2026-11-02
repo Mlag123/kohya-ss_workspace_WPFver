@@ -1,4 +1,6 @@
-﻿namespace kohya_ss_workspace_WPFver.Logic;
+﻿using System.Windows.Media.Imaging;
+
+namespace kohya_ss_workspace_WPFver.Logic;
 
 public class SavedFrame
 {
@@ -10,6 +12,7 @@ public class SavedFrame
     public double Seconds { get; set; }
     public string Prompt { get; set; }
     public string FilePath { get; set; }
+    
     public override string ToString()
     {
         return $"{Seconds:F2} сек - {Prompt}";

@@ -1,11 +1,14 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using kohya_ss_workspace_WPFver.Logic;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
+using Point = System.Windows.Point;
 
 namespace kohya_ss_workspace_WPFver;
 
@@ -29,6 +32,10 @@ public partial class MainWindow : MetroWindow
 
     private SavedFrame editorFrame;
 
+    private List<CroppedImage> croppedImages;
+
+    private CroppedImage currentImage;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -43,7 +50,6 @@ public partial class MainWindow : MetroWindow
     {
         seconds = 0;
         slider.Value = 0;
-        console.Text = "";
         try
         {
             _imageSaver.ResetState();
@@ -59,6 +65,7 @@ public partial class MainWindow : MetroWindow
     public void Init()
     {
         ImageSaver.initFolders();
+        croppedImages = new List<CroppedImage>();
         _imageSaver = new ImageSaver();
 
         VideoTimelineLayout.Text = "00:00";
@@ -80,7 +87,7 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-    public void DebugText(string text)
+    public void DebugText(string text, System.Windows.Media.Brush color = null)
     {
         console.AppendText($" {text}{Environment.NewLine}");
         console.ScrollToEnd();
@@ -120,7 +127,7 @@ public partial class MainWindow : MetroWindow
     {
         var dialog = new OpenFolderDialog
         {
-            Title = "Выберите папку",
+            Title = "Choose output folder",
             Multiselect = false
         };
 
@@ -134,7 +141,6 @@ public partial class MainWindow : MetroWindow
 
     private void Generate_OnClick(object sender, RoutedEventArgs e)
     {
-        DebugText("WIP");
         _imageSaver.Generate(output_path);
     }
 
@@ -142,6 +148,29 @@ public partial class MainWindow : MetroWindow
     {
         if (IsVideoExist())
         {
+            if (string.IsNullOrEmpty(filename.Text))
+            {
+                DebugText("Image name is empty!");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(resX.Text) | string.IsNullOrEmpty(resX.Text))
+            {
+                DebugText("Resolution is empty");
+                return;
+            }
+
+            int width = int.Parse(resX.Text);
+            int height = int.Parse(resY.Text);
+
+            if (width < 128 || height < 128 | width > 4096 | height > 4096)
+            {
+                DebugText($"Invalid resolution {width} x {height}");
+                DebugText($"Resolution is invalid! Diapason resolution 128-4096");
+                return;
+            }
+
+
             try
             {
                 _imageSaver.SaveToJson(filename.Text, int.Parse(resX.Text), int.Parse(resY.Text), seconds,
@@ -159,7 +188,6 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
     {
         e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
@@ -172,21 +200,49 @@ public partial class MainWindow : MetroWindow
             generate.Visibility = Visibility.Visible;
             MainGrid.Visibility = Visibility.Collapsed;
             SecondGrid.Visibility = Visibility.Visible;
-            imageSaved_array = _imageSaver.LoadFromJson();
-            ListBox.ItemsSource = imageSaved_array;
+            LoadAssets();
         }
         else
         {
             MainGrid.Visibility = Visibility.Visible;
             SecondGrid.Visibility = Visibility.Collapsed;
             generate.Visibility = Visibility.Collapsed;
-
         }
     }
 
 
+    public void LoadAssets()
+    {
+        foreach (var frame in _imageSaver.LoadFromJson())
+        {
+            CroppedImage clean_crop = new CroppedImage()
+            {
+                Seconds = frame.Seconds,
+                FilePath = frame.FilePath,
+                PromptText = frame.Prompt,
+                IsCropped = false,
+                CropWidth = 0,
+                CropHeight = 0,
+                CropXOffset = 0,
+                CropYOffset = 0
+            };
+            croppedImages.Add(clean_crop);
+        }
+
+        foreach (var cropFrame in croppedImages)
+        {
+            if (!string.IsNullOrEmpty(cropFrame.FilePath))
+            {
+                frame_extractor.LoadVideo(cropFrame.FilePath);
+                break;
+            }
+        }
+
+        ListBox.ItemsSource = croppedImages;
+    }
+
     public bool IsVideoExist() => image != null;
-   
+
 
 //_________________________________________________________________________//
 
@@ -221,7 +277,6 @@ public partial class MainWindow : MetroWindow
         SelectionRect.Height = h;
     }
 
-    private List<SavedFrame> imageSaved_array;
 
     private void CropCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
@@ -229,37 +284,104 @@ public partial class MainWindow : MetroWindow
     }
 
 
-    private void LoadEdit_OnClick(object sender, RoutedEventArgs e)
+    private void CropImage()
     {
-        imageSaved_array = _imageSaver.LoadFromJson();
-        ListBox.ItemsSource = imageSaved_array;
-    }
-
-    private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ListBox.SelectedItem is SavedFrame frame)
+        if (SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 && SelectionRect.Height > 0)
         {
-            editorFrame = frame;
+            // Координаты прямоугольника на Canvas
+            double rectX = Canvas.GetLeft(SelectionRect);
+            double rectY = Canvas.GetTop(SelectionRect);
+            double rectW = SelectionRect.Width;
+            double rectH = SelectionRect.Height;
+
+            // Размеры картинки на экране
+            double imgWidthOnScreen = ImageEditor.ActualWidth;
+            double imgHeightOnScreen = ImageEditor.ActualHeight;
+
+            // Коэффициенты масштаба
+            double scaleX = ImageEditor.Source.Width / imgWidthOnScreen;
+            double scaleY = ImageEditor.Source.Height / imgHeightOnScreen;
+
+            // Пересчет в реальные пиксели картинки
+            int x = (int)(rectX * scaleX);
+            int y = (int)(rectY * scaleY);
+            int w = (int)(rectW * scaleX);
+            int h = (int)(rectH * scaleY);
+
+            currentImage.CropXOffset = x;
+            currentImage.CropYOffset = y;
+            currentImage.CropWidth = w;
+            currentImage.CropHeight = h;
+            currentImage.IsCropped = true;
             
-            frame_extractor.LoadVideo(frame.FilePath);
-            /*editorSeconds = frame.Seconds;
-            PromptEditor.Text = frame.Prompt;#1#*/
-            PromptEditor.Text = editorFrame.Prompt;
+            // Обрезка
+            var a = new CroppedBitmap((BitmapSource)ImageEditor.Source, new Int32Rect(x, y, w, h));
             UpdateEditorUI();
+            /*ImageEditor.Source = cropped;
+            _imageSaver.UpdateFrame(editorFrame.Seconds, editorFrame);*/
         }
     }
 
+
     public void UpdateEditorUI()
     {
-        ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(editorFrame.Seconds);
+        if (currentImage != null)
+        {
+            Console.WriteLine(currentImage.Seconds);
+            
+            if (currentImage.IsCropped)
+            {
+                ImageEditor.Source = new CroppedBitmap((BitmapSource)frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds), new Int32Rect(currentImage.CropXOffset, currentImage.CropYOffset,currentImage.CropWidth,currentImage.CropHeight));
+            }
+            else
+            {
+                ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds);
+            }
+            PromptEditor.Text = currentImage.PromptText;
+        }
     }
+
+/*private void LoadEdit_OnClick(object sender, RoutedEventArgs e)
+{
+    imageSaved_array = _imageSaver.LoadFromJson();
+    ListBox.ItemsSource = imageSaved_array;
+}*/
+
+    private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (croppedImages != null)
+        {
+            if (ListBox.SelectedItem is CroppedImage frame)
+            {
+                currentImage = frame;
+                //BitmapSource a = frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds);
+                UpdateEditorUI();
+            }
+        }
+
+
+        /*if (ListBox.SelectedItem is SavedFrame frame)
+        {
+            editorFrame = frame;
+
+            frame_extractor.LoadVideo(frame.FilePath);
+            /*editorSeconds = frame.Seconds;
+            PromptEditor.Text = frame.Prompt;#2##1#
+            PromptEditor.Text = editorFrame.Prompt;
+            UpdateEditorUI();
+        }*/
+    }
+
+
 
     private void PromptEditor_OnKeyDown(object sender, KeyEventArgs e)
     {
-
         String a = PromptEditor.Text;
-        editorFrame.Prompt = a;
-        _imageSaver.UpdateFrame(editorFrame.Seconds, editorFrame);
+        currentImage.PromptText = a;
+    }
 
+    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+    {
+        CropImage();
     }
 }

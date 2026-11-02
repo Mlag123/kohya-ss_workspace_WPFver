@@ -36,10 +36,8 @@ public class FrameExtractor
     {
         videoPath = path;
     
-        // Закрываем предыдущий файл, если он был открыт
         mediaFile?.Dispose(); 
     
-        // Открываем новый файл и СОХРАНЯЕМ его в переменную класса
         mediaFile = MediaFile.Open(videoPath);
     }
     

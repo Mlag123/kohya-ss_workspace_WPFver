@@ -95,6 +95,9 @@ public class ImageSaver
         string json = JsonSerializer.Serialize(frames, new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(jsonFile, json);
     }
+    
+    
+    
 
 
     public void savePromptAndImage(string prompt, BitmapSource bitmap)
@@ -151,6 +154,35 @@ public class ImageSaver
 
 
     }
+    
+    /*
+     *
+     *
+     *public void Generate(string outputFolder)
+    {
+        List<SavedFrame> frames = LoadFromJson();
+        FrameExtractor frameExtractor = new  FrameExtractor();
+        frameExtractor.LoadVideo(frames[0].FilePath);
+
+        for (int i = 0; i < frames.Count; i++)
+        {
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(frameExtractor.GetFrameAsBitmapSource(frames[i].Seconds)));
+            Console.WriteLine(frames[i].ImageName);
+            using (FileStream fileStream = new FileStream(outputFolder + "/" + frames[i].ImageName+"_"+i+".png", FileMode.Create))
+            {
+                encoder.Save(fileStream);
+            }
+            
+            File.WriteAllText(outputFolder + "/" + frames[i].ImageName + "_" + i + ".txt", frames[i].Prompt);
+            
+        }
+
+
+    }
+
+     * 
+     */
 
 
     public static string getRandName()
