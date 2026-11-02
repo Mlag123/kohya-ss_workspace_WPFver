@@ -292,7 +292,7 @@ public partial class MainWindow : MetroWindow
 
     private void CropImage()
     {
-        if (SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 && SelectionRect.Height > 0)
+        if (currentImage != null && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 && SelectionRect.Height > 0)
         {
             // Координаты прямоугольника на Canvas
             double rectX = Canvas.GetLeft(SelectionRect);
@@ -300,34 +300,46 @@ public partial class MainWindow : MetroWindow
             double rectW = SelectionRect.Width;
             double rectH = SelectionRect.Height;
 
-            // Размеры картинки на экране
-            double imgWidthOnScreen = ImageEditor.ActualWidth;
-            double imgHeightOnScreen = ImageEditor.ActualHeight;
+            // Размеры Canvas и картинки
+            double canvasWidth = CropCanvas.ActualWidth;
+            double canvasHeight = CropCanvas.ActualHeight;
+            double imageWidth = ImageEditor.Source.Width;
+            double imageHeight = ImageEditor.Source.Height;
 
-            // Коэффициенты масштаба
-            double scaleX = ImageEditor.Source.Width / imgWidthOnScreen;
-            double scaleY = ImageEditor.Source.Height / imgHeightOnScreen;
+            // Считаем масштаб (как в Stretch="Uniform")
+            double scale = Math.Min(canvasWidth / imageWidth, canvasHeight / imageHeight);
 
-            // Пересчет в реальные пиксели картинки
-            int x = (int)(rectX * scaleX);
-            int y = (int)(rectY * scaleY);
-            int w = (int)(rectW * scaleX);
-            int h = (int)(rectH * scaleY);
+            // Реальные размеры картинки на экране
+            double renderedWidth = imageWidth * scale;
+            double renderedHeight = imageHeight * scale;
+
+            // Вычисляем ёбаные отступы (letterbox/pillarbox)
+            double offsetX = (canvasWidth - renderedWidth) / 2.0;
+            double offsetY = (canvasHeight - renderedHeight) / 2.0;
+
+            // Пересчитываем координаты относительно самой картинки
+            double imageX = (rectX - offsetX) / scale;
+            double imageY = (rectY - offsetY) / scale;
+            double imageW = rectW / scale;
+            double imageH = rectH / scale;
+
+            // Ограничиваем, чтобы не вылезти за пределы картинки
+            int x = (int)Math.Max(0, imageX);
+            int y = (int)Math.Max(0, imageY);
+            int w = (int)Math.Min(imageWidth - x, imageW);
+            int h = (int)Math.Min(imageHeight - y, imageH);
 
             currentImage.CropXOffset = x;
             currentImage.CropYOffset = y;
             currentImage.CropWidth = w;
             currentImage.CropHeight = h;
             currentImage.IsCropped = true;
-            
-            // Обрезка
+
             var a = new CroppedBitmap((BitmapSource)ImageEditor.Source, new Int32Rect(x, y, w, h));
             UpdateEditorUI();
-            /*ImageEditor.Source = cropped;
-            _imageSaver.UpdateFrame(editorFrame.Seconds, editorFrame);*/
         }
     }
-
+   
 
     public void UpdateEditorUI()
     {
