@@ -57,7 +57,8 @@ To build this project from source, you will need:
 * **Git** (optional, for cloning the repository)
 * **JetBrains Rider** or **Visual Studio 2022** (with .NET desktop development workload)
 
-### Starting `build.bat` or we continue following the instructions
+### Starting `PublishBuild.bat` or we continue following the instructions
+> Notice: DebugBuild.bat for build debug version. PublishBuild.bat for Publish version. RunDebug.bat - running debug version.
 
 ### Restore NuGet dependencies:
 `dotnet restore`
