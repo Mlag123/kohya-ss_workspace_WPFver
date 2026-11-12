@@ -42,6 +42,7 @@ public partial class MainWindow : MetroWindow
     static extern bool AllocConsole();
     public MainWindow()
     {
+        RenderOptions.ProcessRenderMode = RenderMode.Default; 
         //AllocConsole();
         InitializeComponent();
         _viewModel = new MainViewModel();
