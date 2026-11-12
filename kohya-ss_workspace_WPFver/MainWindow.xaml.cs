@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -37,8 +38,11 @@ public partial class MainWindow : MetroWindow
     private CroppedImage selectedCroppedImage;
     private bool _isUpdatingFromList = false;
 
+    [DllImport("kernel32.dll")]
+    static extern bool AllocConsole();
     public MainWindow()
     {
+        //AllocConsole();
         InitializeComponent();
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
@@ -52,6 +56,8 @@ public partial class MainWindow : MetroWindow
     public void OnFileSelected(string path)
     {
         ResetState();
+        _viewModel.CroppedImages.Clear();
+
 
         videoPath = path;
         frame_extractor.LoadVideo(videoPath);
