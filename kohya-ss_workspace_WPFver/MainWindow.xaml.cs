@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using kohya_ss_workspace_WPFver.Logic;
 using MahApps.Metro.Controls;
@@ -82,7 +84,7 @@ public partial class MainWindow : MetroWindow
         currentImage = new CroppedImage() { IsCropped = false };
         cropManager = new CropManager();
         frame_extractor = new FrameExtractor();
-        _imageSaver = new ImageSaver();
+        _imageSaver = new ImageSaver(_viewModel);
     }
 
 
