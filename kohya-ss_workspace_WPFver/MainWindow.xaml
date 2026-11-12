@@ -12,25 +12,25 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
-            
+
         </Grid.RowDefinitions>
-        
-        <Menu Grid.Row="0" >
+
+        <Menu Grid.Row="0">
             <MenuItem Header="W">
                 <MenuItem Header="WorkInProgress" />
                 <MenuItem Header="WorkInProgress" />
-                <Separator/>
+                <Separator />
                 <MenuItem Header="WorkInProgress" />
             </MenuItem>
             <MenuItem Header="I">
-                <MenuItem Header="WorkInProgress"/>
-                <MenuItem Header="WorkInProgress"/>
+                <MenuItem Header="WorkInProgress" />
+                <MenuItem Header="WorkInProgress" />
             </MenuItem>
             <MenuItem Header="P">
-                <MenuItem Header="WorkInProgress"/>
+                <MenuItem Header="WorkInProgress" />
             </MenuItem>
         </Menu>
-        
+
         <Grid Grid.Row="1" ShowGridLines="True">
 
             <Grid.RowDefinitions>
@@ -63,9 +63,8 @@
                         <Image x:Name="PictureOutputMedia" IsHitTestVisible="False"
                                Width="{Binding ActualWidth, ElementName=CropCanvas}"
                                Height="{Binding ActualHeight, ElementName=CropCanvas}"
-                               Stretch="Uniform" 
-                               Source="{Binding ImageOriginal}"
-                               />
+                               Stretch="Uniform"
+                               Source="{Binding ImageOriginal}" />
 
                         <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#5500FF00" Stroke="Lime"
                                    StrokeThickness="2" Visibility="Collapsed">
@@ -73,8 +72,8 @@
 
                     </Canvas>
 
-                    <ListBox x:Name="ListBox" ItemsSource="{Binding CroppedImages}" SelectionChanged="MyListBox_SelectionChanged">
-
+                    <ListBox x:Name="ListBox" ItemsSource="{Binding CroppedImages}"
+                             SelectionChanged="MyListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -99,12 +98,12 @@
                                 </StackPanel>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                            <ListBox.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Test"></MenuItem>
-                                </ContextMenu>
-                                
-                            </ListBox.ContextMenu>
+                        <ListBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Remove" Click="MenuItem_OnClick"></MenuItem>
+                            </ContextMenu>
+
+                        </ListBox.ContextMenu>
                     </ListBox>
 
                 </Grid>
@@ -129,17 +128,23 @@
                             <ColumnDefinition></ColumnDefinition>
                             <ColumnDefinition></ColumnDefinition>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="resX"  Text="{Binding ResolutionWidth}" Grid.Column="0" Margin="2" PreviewTextInput="NumberValidationTextBox"
+                        <TextBox x:Name="resX" Text="{Binding ResolutionWidth}" Grid.Column="0" Margin="2"
+                                 PreviewTextInput="NumberValidationTextBox"
                                  Controls:TextBoxHelper.Watermark="Resolution W">
                         </TextBox>
-                        <TextBox x:Name="resY" Grid.Column="1" Text="{Binding ResolutionHeight}" Margin="2" PreviewTextInput="NumberValidationTextBox"
+                        <TextBox x:Name="resY" Grid.Column="1" Text="{Binding ResolutionHeight}" Margin="2"
+                                 PreviewTextInput="NumberValidationTextBox"
                                  Controls:TextBoxHelper.Watermark="Resolution H">
                         </TextBox>
                     </Grid>
 
                     <StackPanel Grid.Row="0" Grid.Column="1">
-                        <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged" PreviewMouseLeftButtonUp="Slider_OnPreviewMouseLeftButtonUp"></Slider>
-                        <TextBlock x:Name="VideoTimelineLayout"  FontSize="14" TextWrapping="Wrap" Text="{Binding VideoTimelineText}"></TextBlock>
+                        <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged"
+                                PreviewMouseLeftButtonUp="Slider_OnPreviewMouseLeftButtonUp">
+                        </Slider>
+                        <TextBlock x:Name="VideoTimelineLayout" FontSize="14" TextWrapping="Wrap"
+                                   Text="{Binding VideoTimelineText}">
+                        </TextBlock>
                     </StackPanel>
 
 
@@ -152,25 +157,32 @@
 
                         </Grid.RowDefinitions>
 
-                        <TextBox x:Name="prompt" Grid.Row="0" KeyDown="PromptEditor_OnKeyDown" Controls:TextBoxHelper.Watermark="Enter Prompt" Text="{Binding UiPrompt, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        <Button x:Name="saveBut" Grid.Row="1" Command="{Binding SaveButCommand}" Content="Save Picture And Prompt"></Button>
+                        <TextBox x:Name="prompt" Grid.Row="0" KeyDown="PromptEditor_OnKeyDown"
+                                 Controls:TextBoxHelper.Watermark="Enter Prompt"
+                                 Text="{Binding UiPrompt, UpdateSourceTrigger=PropertyChanged}">
+                        </TextBox>
+                        <Button x:Name="saveBut" Grid.Row="1" Command="{Binding SaveButCommand}"
+                                Content="Save Picture And Prompt">
+                        </Button>
                     </Grid>
 
                     <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="True">
                         <Grid.RowDefinitions>
                             <RowDefinition></RowDefinition>
                             <RowDefinition></RowDefinition>
-              
 
 
                         </Grid.RowDefinitions>
 
-                        <TextBox x:Name="filename" Text="{Binding ImageName}" Controls:TextBoxHelper.Watermark="Image Name"></TextBox>
+                        <TextBox x:Name="filename" Text="{Binding ImageName}"
+                                 Controls:TextBoxHelper.Watermark="Image Name">
+                        </TextBox>
 
 
                     </Grid>
 
-                    <TextBox x:Name="console" Grid.Column="2" TextChanged="Console_TextChanged" IsReadOnly="True" Text="{Binding ConsoleLog}" Grid.Row="1" Padding="0" BorderThickness="0"
+                    <TextBox x:Name="console" Grid.Column="2" TextChanged="Console_TextChanged" IsReadOnly="True"
+                             Text="{Binding ConsoleLog}" Grid.Row="1" Padding="0" BorderThickness="0"
                              Controls:TextBoxHelper.Watermark="Console View">
                     </TextBox>
                 </Grid>
@@ -192,19 +204,23 @@
                 <Button Grid.Column="2" x:Name="generate" Command="{Binding GenerateCommand}" Content="GENERATE!"
                         IsEnabled="True" Visibility="Visible">
                 </Button>
-                
-                <Grid Grid.Column="0" ShowGridLines="True" >
-                   <Grid.ColumnDefinitions>
-                       <ColumnDefinition></ColumnDefinition>
-                       <ColumnDefinition></ColumnDefinition>
-                   </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}" Content="Video Picker"></Button>
-                    <Button Grid.Column="1" x:Name="FolderPicker" Command="{Binding FolderPickerCommand}" Content="Images Picker"></Button>
+
+                <Grid Grid.Column="0" ShowGridLines="True">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}"
+                            Content="Video Picker">
+                    </Button>
+                    <Button Grid.Column="1" x:Name="FolderPicker" Command="{Binding FolderPickerCommand}"
+                            Content="Images Picker">
+                    </Button>
 
                 </Grid>
-                
 
-                <Button Grid.Column="3"  Visibility="Collapsed" Content="Crop"></Button>
+
+                <Button Grid.Column="3" Visibility="Collapsed" Content="Crop"></Button>
                 <Button Grid.Column="1" x:Name="outputFolderPicker" Command="{Binding OutputPickerCommand}"
                         Content="Output Folder Picker">
                 </Button>
