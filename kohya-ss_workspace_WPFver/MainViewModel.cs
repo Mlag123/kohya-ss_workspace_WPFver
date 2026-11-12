@@ -45,7 +45,24 @@ public partial class MainViewModel : ObservableObject
     
         VideoTimelineText = $"{minutes}:{secs}    res:{w}:{h}";
     }
-    
+
+
+    [RelayCommand]
+    private void FolderPicker()
+    {
+        OpenFolderDialog dialog = new OpenFolderDialog
+        {
+            Title = "Choose folder",
+            Multiselect = false
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            imageFolderPath = dialog.FolderName;
+            OpenFolderDialog?.Invoke(imageFolderPath);
+            DebugText($"Images path {imageFolderPath}");
+        }
+    }
+
     [RelayCommand]
     private void FilePicker()
     {
