@@ -28,7 +28,11 @@ public class ImageSaver
 
     public void generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution)
     {
-        
+
+        if (string.IsNullOrEmpty(outputPath))
+        {
+            return;
+        }
         
         if (!Directory.Exists(outputPath))
         {
