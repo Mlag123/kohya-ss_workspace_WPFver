@@ -49,6 +49,12 @@ public partial class MainWindow : MetroWindow
     public MainWindow()
     {
         RenderOptions.ProcessRenderMode = RenderMode.Default;
+        
+        
+#if DEBUG
+        AllocConsole();
+#endif
+        
         //AllocConsole(); //debug system console
         InitializeComponent();
         _viewModel = new MainViewModel();

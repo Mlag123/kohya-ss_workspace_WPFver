@@ -4,7 +4,6 @@
 call :colored "Starting build!" Blue
 
 dotnet restore
-dotnet build -c Release
 dotnet publish -c Release -r win-x64 --self-contained true
 
 
