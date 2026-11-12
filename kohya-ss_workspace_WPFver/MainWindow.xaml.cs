@@ -51,7 +51,7 @@ public partial class MainWindow : MetroWindow
 
     public void OnFileSelected(string path)
     {
-        ResetState(); // Сбрасываем старые данные
+        ResetState();
 
         videoPath = path;
         frame_extractor.LoadVideo(videoPath);
@@ -60,13 +60,10 @@ public partial class MainWindow : MetroWindow
 
         var bitmap = frame_extractor.GetFrameAsBitmapSource(seconds);
 
-        // Замораживаем, если нужно (чтобы UI не упал)
         if (bitmap != null && bitmap.CanFreeze) bitmap.Freeze();
 
-        // Обновляем ViewModel
         SendImageToUI(bitmap);
 
-        // Если currentImage нужен для дальнейшей логики — обновляем его тоже
         currentImage.Original = bitmap;
         currentImage.Seconds = seconds;
         SetMetaData(currentImage);
@@ -74,7 +71,7 @@ public partial class MainWindow : MetroWindow
 
     public void Init()
     {
-        ImageSaver.initFolders();
+       // ImageSaver.initFolders();
         currentImage = new CroppedImage() { IsCropped = false };
         cropManager = new CropManager();
         frame_extractor = new FrameExtractor();
@@ -177,68 +174,11 @@ public partial class MainWindow : MetroWindow
     }
 
 
-    /// <summary>
-    /// DEPRECATED FUNC
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void FilePicker_OnClick(object sender, RoutedEventArgs e)
-    {
-        /*OpenFileDialog openFileDialog = new OpenFileDialog();
-        openFileDialog.Filter = "Video files (*.mp4)|*.mp4|All files (*.*)|*.*";
-
-        if (openFileDialog.ShowDialog() == true)
-        {
-            ResetState();
-            videoPath = openFileDialog.FileName;
-            DebugText($"Opened file: {videoPath}");
-            frame_extractor.LoadVideo(videoPath);
-            slider.Maximum = frame_extractor.getDuration();
-            currentImage = new CroppedImage()
-            {
-                Original = frame_extractor.GetFrameAsBitmapSource(seconds),
-                Seconds = seconds
-            };
-            updateUI();
-        }*/
-    }
 
 
-    /// <summary>
-    /// DEPRECATED FUNC
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void OutputFolderPicker_OnClick(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFolderDialog
-        {
-            Title = "Choose output folder",
-            Multiselect = false
-        };
-
-        if (dialog.ShowDialog() == true)
-        {
-            string folder = dialog.FolderName;
-            output_path = folder;
-            DebugText($"Output folder: {output_path}");
-        }
-    }
-
-
-    /// <summary>
-    /// DEPRECATED FUNC!
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void Generate_OnClick(object sender, RoutedEventArgs e)
-    {
-        //   _imageSaver.Generate(output_path,croppedImages,scaleX,scaleY);
-    }
 
     private void Console_TextChanged(object sender, TextChangedEventArgs e)
     {
-        // Прокручиваем вниз, когда текст меняется
         ((TextBox)sender).ScrollToEnd();
     }
 
@@ -300,9 +240,7 @@ public partial class MainWindow : MetroWindow
         ResetRectangle();
     }
 
-    private void ResetPromtUI()
-    {
-    }
+
 
     private bool isImageExist()
     {
@@ -321,36 +259,29 @@ public partial class MainWindow : MetroWindow
         if (isImageExist() && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 &&
             SelectionRect.Height > 0)
         {
-            // Координаты прямоугольника на Canvas
             double rectX = Canvas.GetLeft(SelectionRect);
             double rectY = Canvas.GetTop(SelectionRect);
             double rectW = SelectionRect.Width;
             double rectH = SelectionRect.Height;
 
-            // Размеры Canvas и картинки
             double canvasWidth = CropCanvas.ActualWidth;
             double canvasHeight = CropCanvas.ActualHeight;
             double imageWidth = PictureOutputMedia.Source.Width;
             double imageHeight = PictureOutputMedia.Source.Height;
 
-            // Считаем масштаб (как в Stretch="Uniform")
             double scale = Math.Min(canvasWidth / imageWidth, canvasHeight / imageHeight);
 
-            // Реальные размеры картинки на экране
             double renderedWidth = imageWidth * scale;
             double renderedHeight = imageHeight * scale;
 
-            // Вычисляем ёбаные отступы (letterbox/pillarbox)
             double offsetX = (canvasWidth - renderedWidth) / 2.0;
             double offsetY = (canvasHeight - renderedHeight) / 2.0;
 
-            // Пересчитываем координаты относительно самой картинки
             double imageX = (rectX - offsetX) / scale;
             double imageY = (rectY - offsetY) / scale;
             double imageW = rectW / scale;
             double imageH = rectH / scale;
 
-            // Ограничиваем, чтобы не вылезти за пределы картинки
             int x = (int)Math.Max(0, imageX);
             int y = (int)Math.Max(0, imageY);
             int w = (int)Math.Min(imageWidth - x, imageW);
@@ -530,11 +461,6 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-    ///deprecated
-    private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
-    {
-        //CropImage();
-    }
 
     private void Slider_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {

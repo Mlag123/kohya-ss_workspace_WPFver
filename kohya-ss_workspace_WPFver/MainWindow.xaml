@@ -15,19 +15,19 @@
             
         </Grid.RowDefinitions>
         
-        <Menu Grid.Row="0">
-            <MenuItem Header="Файл">
-                <MenuItem Header="Открыть..." />
-                <MenuItem Header="Сохранить" />
+        <Menu Grid.Row="0" >
+            <MenuItem Header="W">
+                <MenuItem Header="WorkInProgress" />
+                <MenuItem Header="WorkInProgress" />
                 <Separator/>
-                <MenuItem Header="Выход" />
+                <MenuItem Header="WorkInProgress" />
             </MenuItem>
-            <MenuItem Header="Правка">
-                <MenuItem Header="Копировать"/>
-                <MenuItem Header="Вставить"/>
+            <MenuItem Header="I">
+                <MenuItem Header="WorkInProgress"/>
+                <MenuItem Header="WorkInProgress"/>
             </MenuItem>
-            <MenuItem Header="Вид">
-                <MenuItem Header="Настройки"/>
+            <MenuItem Header="P">
+                <MenuItem Header="WorkInProgress"/>
             </MenuItem>
         </Menu>
         
@@ -175,13 +175,13 @@
                     <ColumnDefinition></ColumnDefinition>
 
                 </Grid.ColumnDefinitions>
-                <!-- <Button x:Name="LoadEdit" Click="LoadEdit_OnClick" Grid.Column="1" Content="Load edit"></Button> -->
-                <Button Grid.Column="2" x:Name="generate" Click="Generate_OnClick" Command="{Binding GenerateCommand}" Content="GENERATE!"
+                <!-- <Button x:Name="LoadEdit"  Grid.Column="1" Content="Load edit"></Button> -->
+                <Button Grid.Column="2" x:Name="generate" Command="{Binding GenerateCommand}" Content="GENERATE!"
                         IsEnabled="True" Visibility="Visible">
                 </Button>
                 <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}" Content="File Picker"></Button>
 
-                <Button Grid.Column="3" Click="ButtonBase_OnClick" Content="Crop"></Button>
+                <Button Grid.Column="3"  Visibility="Collapsed" Content="Crop"></Button>
                 <Button Grid.Column="1" x:Name="outputFolderPicker" Command="{Binding OutputPickerCommand}"
                         Content="Output Folder Picker">
                 </Button>
@@ -194,7 +194,7 @@
                         <ColumnDefinition></ColumnDefinition>
 
                     </Grid.ColumnDefinitions>
-                    <Controls:ToggleSwitch Grid.Column="0" Content="Black/Light"></Controls:ToggleSwitch>
+                    <Controls:ToggleSwitch Grid.Column="0" Visibility="Hidden" Content="Black/Light"></Controls:ToggleSwitch>
 
 
                 </Grid>
