@@ -7,22 +7,30 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ApplicationIcon>favicon.ico</ApplicationIcon>
     </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="native\ffmpeg\*.dll">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>runtimes\win-x64\native\%(Filename)%(Extension)</Link>
-		</None>
-	</ItemGroup>
-
+    <!-- Ресурсы: иконка вшивается в сборку -->
     <ItemGroup>
-      <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-      <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
-      <PackageReference Include="MahApps.Metro" Version="3.0.0-rc0529" />
-      <PackageReference Include="SkiaSharp" Version="4.156.0-preview.1.26512.10" />
-      <PackageReference Include="SkiaSharp.Views.WPF" Version="4.156.0-preview.1.26512.10" />
+        <Resource Include="favicon.ico" />
+    </ItemGroup>
+
+    <!-- FFmpeg: копируем нативные DLL в выходную папку -->
+    <ItemGroup>
+        <None Include="native\ffmpeg\*.dll">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>runtimes\win-x64\native\%(Filename)%(Extension)</Link>
+        </None>
+    </ItemGroup>
+
+    <!-- NuGet пакеты -->
+    <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+        <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
+        <PackageReference Include="MahApps.Metro" Version="3.0.0-rc0529" />
+        <PackageReference Include="SkiaSharp" Version="4.156.0-preview.1.26512.10" />
+        <PackageReference Include="SkiaSharp.Views.WPF" Version="4.156.0-preview.1.26512.10" />
     </ItemGroup>
 
 </Project>

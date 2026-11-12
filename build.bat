@@ -1,4 +1,4 @@
-#echo off
+@echo off
 dotnet restore
 dotnet build -c Release
 dotnet publish -c Release -r win-x64 --self-contained true
