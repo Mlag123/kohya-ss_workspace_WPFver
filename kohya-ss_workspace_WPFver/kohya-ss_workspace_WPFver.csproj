@@ -16,6 +16,9 @@
         <Resource Include="favicon.ico" />
     </ItemGroup>
 
+	<ItemGroup>
+		<Resource Include="Images\*.png" />
+	</ItemGroup>
     <!-- FFmpeg: копируем нативные DLL в выходную папку -->
     <ItemGroup>
         <None Include="native\ffmpeg\*.dll">
