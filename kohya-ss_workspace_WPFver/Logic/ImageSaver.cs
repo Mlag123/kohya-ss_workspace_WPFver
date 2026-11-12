@@ -32,7 +32,7 @@ public class ImageSaver
     }
 
 
-    public void generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution)
+    public void generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution, Action<int, int> onProgress)
     {
         if (string.IsNullOrEmpty(outputPath))
         {
@@ -45,7 +45,9 @@ public class ImageSaver
         }
 
         Console.WriteLine("Generating Cropped Images");
-        for (int i = 0; i < croppedImages.Count; i++)
+        int total = croppedImages.Count;
+
+        for (int i = 0; i < total; i++)
         {
             string pngoutPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + png_format;
             string textPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + text_format;
@@ -64,11 +66,14 @@ public class ImageSaver
                     savePicture(finalImage, pngoutPath);
                     SavePromptToFile(croppedImages[i].PromptText, textPath);
                 }
-            }catch(Exception e)
-            {
-                _viewModel.DebugText($"Critical error!");
-                _viewModel.DebugText(e.Message);
             }
+            catch(Exception e)
+            {
+                Console.WriteLine($"Critical error on image {i}: {e.Message}");
+            }
+
+       
+            onProgress?.Invoke(i + 1, total); 
         }
     }
 

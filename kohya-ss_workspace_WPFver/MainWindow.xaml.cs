@@ -49,12 +49,12 @@ public partial class MainWindow : MetroWindow
     public MainWindow()
     {
         RenderOptions.ProcessRenderMode = RenderMode.Default;
-        
-        
+
+
 #if DEBUG
         AllocConsole();
 #endif
-        
+
         //AllocConsole(); //debug system console
         InitializeComponent();
         _viewModel = new MainViewModel();
@@ -142,7 +142,30 @@ public partial class MainWindow : MetroWindow
 
     public void Generate()
     {
-        _imageSaver.generate(GetCroppedImages(), _viewModel.OutputPath, GetNewResolution());
+        var images = GetCroppedImages();
+        if (images.Count == 0) return;
+
+        _viewModel.ProgressMax = images.Count;
+        _viewModel.ProgressValue = 0;
+        _viewModel.IsGenerating = true;
+
+        _imageSaver.generate(
+            images,
+            _viewModel.OutputPath,
+            GetNewResolution(),
+            (done, totalCount) =>
+            {
+                _viewModel.ProgressValue = done;
+
+                System.Windows.Application.Current.Dispatcher.Invoke(
+                    System.Windows.Threading.DispatcherPriority.Background,
+                    new Action(delegate { })
+                );
+            }
+        );
+
+        _viewModel.IsGenerating = false;
+        DebugText("Generate end");
     }
 
     private ObservableCollection<CroppedImage> GetCroppedImages()
@@ -556,7 +579,7 @@ public partial class MainWindow : MetroWindow
         if (ListBox.SelectedItem is CroppedImage selectedImage)
         {
             DebugText($"Removed: {selectedImage.SourceFileImageName}");
-           _viewModel.CroppedImages.Remove(selectedImage);
+            _viewModel.CroppedImages.Remove(selectedImage);
         }
     }
 }

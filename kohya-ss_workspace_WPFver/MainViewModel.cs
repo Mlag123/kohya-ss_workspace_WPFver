@@ -23,6 +23,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private BitmapSource imageCropped; // пока не знаю, нужно ли оно
     [ObservableProperty] private string consoleLog = string.Empty;
     [ObservableProperty] private string videoTimelineText = "00:00    res:0:0";
+    
+    [ObservableProperty] private int progressValue;
+    [ObservableProperty] private int progressMax;
+    [ObservableProperty] private bool isGenerating;
 
     public string imageFolderPath;
     public event Action<string> FileSelected;

@@ -8,6 +8,10 @@
                       xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
                       mc:Ignorable="d"
                       Title="Kohya-ssWorkspace" Height="720" Width="1280">
+    
+    <Controls:MetroWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </Controls:MetroWindow.Resources>
 
     <Grid ShowGridLines="False">
         <Grid.RowDefinitions>
@@ -221,10 +225,16 @@
                 </Grid>
 
 
-                <Button Grid.Column="3" Visibility="Collapsed" Content="Crop"></Button>
+                <Button Grid.Column="4" Visibility="Collapsed" Content="Crop"></Button>
                 <Button Grid.Column="1" x:Name="outputFolderPicker" Command="{Binding OutputPickerCommand}"
                         Content="Output Folder Picker">
                 </Button>
+                <Controls:MetroProgressBar Grid.Column="3" 
+                    Value="{Binding ProgressValue}" 
+                    Maximum="{Binding ProgressMax}" 
+                    Height="20" 
+                    Margin="10,0"
+                    Visibility="{Binding IsGenerating, Converter={StaticResource BoolToVis}}" />
 
 
                 <Grid Grid.Column="4" ShowGridLines="True">
