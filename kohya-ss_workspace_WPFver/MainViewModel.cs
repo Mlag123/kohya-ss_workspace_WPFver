@@ -18,23 +18,23 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private BitmapSource imageOriginal;
 
-    [ObservableProperty]
-    private ObservableCollection<CroppedImage> croppedImages = new();
+    [ObservableProperty] private ObservableCollection<CroppedImage> croppedImages = new();
     [ObservableProperty] private string imageName;
     [ObservableProperty] private BitmapSource imageCropped; // пока не знаю, нужно ли оно
     [ObservableProperty] private string consoleLog = string.Empty;
-    [ObservableProperty] 
-    private string videoTimelineText = "00:00    res:0:0";
-        
+    [ObservableProperty] private string videoTimelineText = "00:00    res:0:0";
+
+    public string imageFolderPath;
     public event Action<string> FileSelected;
-    public event  Action SaveButtonClick;
-    public event  Action GenerateButtonClick;
+    public event Action SaveButtonClick;
+    public event Action GenerateButtonClick;
+    public event Action<string> OpenFolderDialog;
     public string OutputPath { get; set; }
 
     public string FolderToSource { get; set; }
 
-    
-    public void UpdateTimeline(double seconds, BitmapSource image)
+
+    public void UpdateTimeline(double seconds , BitmapSource image )
     {
         if (image == null) return;
 
@@ -42,7 +42,7 @@ public partial class MainViewModel : ObservableObject
         int secs = (int)seconds % 60;
         int w = (int)image.Width;
         int h = (int)image.Height;
-    
+
         VideoTimelineText = $"{minutes}:{secs}    res:{w}:{h}";
     }
 
@@ -86,10 +86,7 @@ public partial class MainViewModel : ObservableObject
     public void DebugText(string text)
     {
         ConsoleLog += $" {text}{Environment.NewLine}";
-        // А скролл вниз - это уже задача View. 
     }
-
- 
 
 
     [RelayCommand]
@@ -124,7 +121,6 @@ public partial class MainViewModel : ObservableObject
     private void SaveBut()
     {
         SaveButtonClick?.Invoke();
-
     }
 
 
@@ -133,6 +129,4 @@ public partial class MainViewModel : ObservableObject
     {
         GenerateButtonClick?.Invoke();
     }
-
-   
 }
