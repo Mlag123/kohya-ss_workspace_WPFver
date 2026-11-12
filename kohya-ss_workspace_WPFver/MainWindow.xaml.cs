@@ -56,6 +56,53 @@ public partial class MainWindow : MetroWindow
         Init();
     }
 
+
+    public void LoadImagesFromFolder(string path)
+    {
+        ImagesFolderPath = path;
+
+        if (!Directory.Exists(ImagesFolderPath)) return;
+
+        if (isNameExist())
+        {
+            DebugText("Image name is empty!");
+            return;
+        }
+
+
+        var imagesFile = Directory.GetFiles(path, "*.*", SearchOption.TopDirectoryOnly)
+            .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                        f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+
+
+        var resolution = GetNewResolution();
+        isImagesType = true; //When isImagesType is true, then AddCroppedImageToListBox added picture, But ,is false, then video frame. Because maybe deprecated statement.
+        foreach (var img in imagesFile)
+        {
+            var bitmap = new BitmapImage(new Uri(img));
+            string fileName = Path.GetFileName(img);
+            var init_img = new CroppedImage()
+            {
+                isImagesType = true,
+                IsCropped = false,
+                SourceFileImageName = fileName,
+                ImageName = filename.Text,
+                FilePath = videoPath,
+                Original = bitmap,
+                Cropped = null,
+                PromptText = GetPromtFromUI(),
+                Seconds = -1, //When -1,  then it is image. if Second >=0, then it is video frame.
+                NewResizeWidth = resolution.Width,
+                NewResizeHeight = resolution.Height,
+            };
+
+            SendImageToUI(init_img);
+
+            AddCroppedImageToListBox(init_img);
+        }
+    }
+
     public void OnFileSelected(string path)
     {
         ResetState();
