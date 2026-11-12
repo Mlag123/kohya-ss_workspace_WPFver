@@ -76,6 +76,27 @@ To build this project from source, you will need:
 
 * Prefer 32-bit: Ensure that the "Prefer 32-bit" option is turned off in your project settings, as `FFMediaToolkit` requires a 64-bit environment.
 
+## Reporting issue
+
+If you encounter any issues, please create a new issue in this repository.
+
+When reporting a bug, please specify:
+1. What exactly went wrong (describe the problem).
+2. Steps to reproduce the issue.
+3. Your OS and .NET version (if relevant).
+
+
+## Pull Requests
+
+If you would like to contribute, please:
+1. Fork this repository.
+2. Create a new branch for your feature/fix.
+3. Make your changes and commit them with a clear message.
+4. Submit a Pull Request describing what you changed and why.
+
+Please ensure your code follows the existing style and passes the build.
+
+
 ## License
 
 Distribution of the program and source code under the MIT License
