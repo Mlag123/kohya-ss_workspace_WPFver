@@ -1,6 +1,6 @@
-# Video/Image Dataset-Tagger. Kohya-ss Workspace ![fox](docs/images/present_Fox.png)
+# Video/Image Dataset-Tagger. Kohya-ss Workspace 
 
-
+![fox](docs/images/ico_mascote.png)
 
 ## Description
 
