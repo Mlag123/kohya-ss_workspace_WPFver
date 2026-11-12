@@ -134,7 +134,7 @@ public class ImageSaver
     }
 
 
-    public void Generate(string outputFolder, List<CroppedImage> croppedImages, int resX, int resY)
+    /*public void Generate(string outputFolder, List<CroppedImage> croppedImages, int resX, int resY)
 {
     FrameExtractor frameExtractor = new FrameExtractor();
 
@@ -221,8 +221,8 @@ public class ImageSaver
         }
 
         File.WriteAllText(textPath, croppedImage.PromptText);
-    }
-}
+    }*/
+
     
     /*
      *
@@ -253,6 +253,7 @@ public class ImageSaver
      * 
      */
 
+    
 
     public static string getRandName()
     {

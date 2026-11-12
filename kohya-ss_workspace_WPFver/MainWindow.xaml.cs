@@ -18,41 +18,73 @@ namespace kohya_ss_workspace_WPFver;
 public partial class MainWindow : MetroWindow
 {
     private string videoPath = null;
-    private int Minute;
-    private int second;
-    private string source_filename;
     private double seconds = 0;
     private string output_path;
-    private BitmapSource image;
     private ImageSaver _imageSaver;
     private bool _isDragging = false;
     private Point _startPoint;
     private FrameExtractor frame_extractor;
 
-
-    private SavedFrame editorFrame;
-
     private List<CroppedImage> croppedImages;
-
     private CroppedImage currentImage;
-
-
+    private bool isCropped = false;
     private int scaleX, scaleY;
+    private CropManager cropManager;
+
+    private MainViewModel _viewModel;
+    private const string DEFAULT_RESOLUTION = "512";
 
     public MainWindow()
     {
         InitializeComponent();
+        _viewModel = new MainViewModel();
+        DataContext = _viewModel;
+        _viewModel.FileSelected += OnFileSelected;
 
-
-        frame_extractor = new FrameExtractor();
         Init();
     }
 
+    public void OnFileSelected(string path)
+    {
+        ResetState(); // Сбрасываем старые данные
+
+        videoPath = path;
+        frame_extractor.LoadVideo(videoPath);
+        slider.Maximum = frame_extractor.getDuration();
+
+
+        var bitmap = frame_extractor.GetFrameAsBitmapSource(seconds);
+
+        // Замораживаем, если нужно (чтобы UI не упал)
+        if (bitmap != null && bitmap.CanFreeze) bitmap.Freeze();
+
+        // Обновляем ViewModel
+        SendImageToUI(bitmap);
+
+        // Если currentImage нужен для дальнейшей логики — обновляем его тоже
+        currentImage.Original = bitmap;
+        currentImage.Seconds = seconds;
+        SetMetaData(currentImage);
+    }
+
+    public void Init()
+    {
+        ImageSaver.initFolders();
+        currentImage = new CroppedImage() { IsCropped = false };
+        cropManager = new CropManager();
+        frame_extractor = new FrameExtractor();
+        _imageSaver = new ImageSaver();
+        croppedImages = new List<CroppedImage>();
+        //  VideoTimelineLayout.Text = "00:00";
+        //   slider.Maximum = frame_extractor.getDuration();
+    }
 
     private void ResetState()
     {
         seconds = 0;
         slider.Value = 0;
+        currentImage = new CroppedImage();
+
         try
         {
             _imageSaver.ResetState();
@@ -64,25 +96,32 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-
-    public void Init()
+    private void SetMetaData(CroppedImage croppedImage)
     {
-        ImageSaver.initFolders();
-        croppedImages = new List<CroppedImage>();
-        _imageSaver = new ImageSaver();
-
-        VideoTimelineLayout.Text = "00:00";
-        slider.Maximum = frame_extractor.getDuration();
+        if (DataContext is MainViewModel vs)
+        {
+            if (croppedImage.IsCropped)
+            {
+                vs.UpdateTimeline(croppedImage.Seconds, croppedImage.Cropped);
+            }
+            else
+            {
+                vs.UpdateTimeline(croppedImage.Seconds, croppedImage.Original);
+            }
+        }
     }
 
     private void TimeLine_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
         try
         {
-            Console.WriteLine(slider.Value);
             this.seconds = slider.Value;
-            image = frame_extractor.GetFrameAsBitmapSource(seconds);
-            updateUI();
+            currentImage.Seconds = seconds;
+            currentImage.Original = frame_extractor.GetFrameAsBitmapSource(seconds);
+
+
+            SendImageToUI(currentImage);
+            SetMetaData(currentImage);
         }
         catch (Exception)
         {
@@ -90,28 +129,15 @@ public partial class MainWindow : MetroWindow
         }
     }
 
-    public void DebugText(string text, System.Windows.Media.Brush color = null)
-    {
-        console.AppendText($" {text}{Environment.NewLine}");
-        console.ScrollToEnd();
-    }
 
-
-    public void updateUI()
-    {
-        PictureOutputMedia.Source = image;
-
-        int _minutes = (int)this.seconds / 60;
-        int _seconds = (int)this.seconds % 60;
-        int w = (int)image.Width;
-        int h = (int)image.Height;
-        VideoTimelineLayout.Text = $"{_minutes}:{_seconds}    res:{w}:{h}";
-    }
-
-
+    /// <summary>
+    /// DEPRECATED FUNC
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void FilePicker_OnClick(object sender, RoutedEventArgs e)
     {
-        OpenFileDialog openFileDialog = new OpenFileDialog();
+        /*OpenFileDialog openFileDialog = new OpenFileDialog();
         openFileDialog.Filter = "Video files (*.mp4)|*.mp4|All files (*.*)|*.*";
 
         if (openFileDialog.ShowDialog() == true)
@@ -121,11 +147,21 @@ public partial class MainWindow : MetroWindow
             DebugText($"Opened file: {videoPath}");
             frame_extractor.LoadVideo(videoPath);
             slider.Maximum = frame_extractor.getDuration();
-            image = frame_extractor.GetFrameAsBitmapSource(seconds);
+            currentImage = new CroppedImage()
+            {
+                Original = frame_extractor.GetFrameAsBitmapSource(seconds),
+                Seconds = seconds
+            };
             updateUI();
-        }
+        }*/
     }
 
+
+    /// <summary>
+    /// DEPRECATED FUNC
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void OutputFolderPicker_OnClick(object sender, RoutedEventArgs e)
     {
         var dialog = new OpenFolderDialog
@@ -142,112 +178,37 @@ public partial class MainWindow : MetroWindow
         }
     }
 
+
+    /// <summary>
+    /// DEPRECATED FUNC!
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void Generate_OnClick(object sender, RoutedEventArgs e)
     {
-        _imageSaver.Generate(output_path,croppedImages,scaleX,scaleY);
+        //   _imageSaver.Generate(output_path,croppedImages,scaleX,scaleY);
     }
 
+    private void Console_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        // Прокручиваем вниз, когда текст меняется
+        ((TextBox)sender).ScrollToEnd();
+    }
+
+
+    /// <summary>
+    /// DEPRECARED FUNC
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void SaveBut_OnClick(object sender, RoutedEventArgs e)
     {
-        if (IsVideoExist())
-        {
-            if (string.IsNullOrEmpty(filename.Text))
-            {
-                DebugText("Image name is empty!");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(resX.Text) | string.IsNullOrEmpty(resX.Text))
-            {
-                DebugText("Resolution is empty");
-                return;
-            }
-
-            int width = int.Parse(resX.Text);
-            int height = int.Parse(resY.Text);
-
-            if (width < 128 || height < 128 | width > 4096 | height > 4096)
-            {
-                DebugText($"Invalid resolution {width} x {height}");
-                DebugText($"Resolution is invalid! Diapason resolution 128-4096");
-                return;
-            }
-
-            scaleX = width;
-            scaleY = height;
-    
-            try
-            {
-                _imageSaver.SaveToJson(filename.Text, int.Parse(resX.Text), int.Parse(resY.Text), seconds,
-                    prompt.Text, videoPath);
-                DebugText($"Frame Saved {seconds}");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-        else
-        {
-            DebugText($"Video not loaded!");
-        }
     }
 
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
     {
         e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
     }
-
-    private void ToggleSwitch_OnToggled(object sender, RoutedEventArgs e)
-    {
-        if (Switch.IsOn)
-        {
-            generate.Visibility = Visibility.Visible;
-            MainGrid.Visibility = Visibility.Collapsed;
-            SecondGrid.Visibility = Visibility.Visible;
-            LoadAssets();
-        }
-        else
-        {
-            MainGrid.Visibility = Visibility.Visible;
-            SecondGrid.Visibility = Visibility.Collapsed;
-            generate.Visibility = Visibility.Collapsed;
-        }
-    }
-
-
-    public void LoadAssets()
-    {
-        foreach (var frame in _imageSaver.LoadFromJson())
-        {
-            CroppedImage clean_crop = new CroppedImage()
-            {
-                Seconds = frame.Seconds,
-                FilePath = frame.FilePath,
-                PromptText = frame.Prompt,
-                IsCropped = false,
-                CropWidth = 0,
-                CropHeight = 0,
-                CropXOffset = 0,
-                CropYOffset = 0,
-                ImageName = frame.ImageName
-            };
-            croppedImages.Add(clean_crop);
-        }
-
-        foreach (var cropFrame in croppedImages)
-        {
-            if (!string.IsNullOrEmpty(cropFrame.FilePath))
-            {
-                frame_extractor.LoadVideo(cropFrame.FilePath);
-                break;
-            }
-        }
-
-        ListBox.ItemsSource = croppedImages;
-    }
-
-    public bool IsVideoExist() => image != null;
 
 
 //_________________________________________________________________________//
@@ -269,30 +230,54 @@ public partial class MainWindow : MetroWindow
 
     private void CropCanvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (!_isDragging) return;
+        if (isImageExist())
+        {
+            if (!_isDragging) return;
 
-        Point currentPoint = e.GetPosition(CropCanvas);
+            Point currentPoint = e.GetPosition(CropCanvas);
 
-        double x = Math.Min(_startPoint.X, currentPoint.X);
-        double y = Math.Min(_startPoint.Y, currentPoint.Y);
-        double w = Math.Abs(_startPoint.X - currentPoint.X);
-        double h = Math.Abs(_startPoint.Y - currentPoint.Y);
-        Canvas.SetLeft(SelectionRect, x);
-        Canvas.SetTop(SelectionRect, y);
-        SelectionRect.Width = w;
-        SelectionRect.Height = h;
+            double x = Math.Min(_startPoint.X, currentPoint.X);
+            double y = Math.Min(_startPoint.Y, currentPoint.Y);
+            double w = Math.Abs(_startPoint.X - currentPoint.X);
+            double h = Math.Abs(_startPoint.Y - currentPoint.Y);
+            Canvas.SetLeft(SelectionRect, x);
+            Canvas.SetTop(SelectionRect, y);
+            SelectionRect.Width = w;
+            SelectionRect.Height = h;
+        }
     }
 
+    private void ResetRectangle()
+    {
+        SelectionRect.Width = 0;
+        SelectionRect.Height = 0;
+        SelectionRect.Visibility = Visibility.Hidden;
+    }
 
+    //отпустил мышь.
     private void CropCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         _isDragging = false;
+        CropImage();
+        ResetRectangle();
+    }
+
+    private bool isImageExist()
+    {
+        return DataContext is MainViewModel vs && vs.ImageOriginal != null;
     }
 
 
     private void CropImage()
     {
-        if (currentImage != null && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 && SelectionRect.Height > 0)
+        if (!isNameExist())
+        {
+            DebugText("Image name is empty!");
+            return;
+        }
+
+        if (isImageExist() && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 &&
+            SelectionRect.Height > 0)
         {
             // Координаты прямоугольника на Canvas
             double rectX = Canvas.GetLeft(SelectionRect);
@@ -303,8 +288,8 @@ public partial class MainWindow : MetroWindow
             // Размеры Canvas и картинки
             double canvasWidth = CropCanvas.ActualWidth;
             double canvasHeight = CropCanvas.ActualHeight;
-            double imageWidth = ImageEditor.Source.Width;
-            double imageHeight = ImageEditor.Source.Height;
+            double imageWidth = PictureOutputMedia.Source.Width;
+            double imageHeight = PictureOutputMedia.Source.Height;
 
             // Считаем масштаб (как в Stretch="Uniform")
             double scale = Math.Min(canvasWidth / imageWidth, canvasHeight / imageHeight);
@@ -329,77 +314,156 @@ public partial class MainWindow : MetroWindow
             int w = (int)Math.Min(imageWidth - x, imageW);
             int h = (int)Math.Min(imageHeight - y, imageH);
 
-            currentImage.CropXOffset = x;
-            currentImage.CropYOffset = y;
-            currentImage.CropWidth = w;
-            currentImage.CropHeight = h;
-            currentImage.IsCropped = true;
+            var resolution = GetNewResolution();
+            CroppedImage cropImg = new CroppedImage()
+            {
+                IsCropped = true,
+                ImageName = currentImage.ImageName,
+                FilePath = videoPath,
+                Original = currentImage.Original,
+                Cropped = cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source),
+                PromptText = GetPromtFromUI(),
+                Seconds = currentImage.Seconds,
+                NewResizeWidth = resolution.Width,
+                NewResizeHeight = resolution.Height,
+            };
+            SendImageToUI(cropImg);
 
-            var a = new CroppedBitmap((BitmapSource)ImageEditor.Source, new Int32Rect(x, y, w, h));
-            UpdateEditorUI();
+            croppedImages.Add(cropImg);
+            ListBox.ItemsSource = null;
+            ListBox.ItemsSource = croppedImages;
+            SendPromptToUI("");
         }
     }
-   
 
-    public void UpdateEditorUI()
+
+    private Resolution GetNewResolution()
     {
-        if (currentImage != null)
+        if (!string.IsNullOrEmpty(resX.Text) && !string.IsNullOrEmpty(resY.Text))
         {
-            Console.WriteLine(currentImage.Seconds);
-            
-            if (currentImage.IsCropped)
+            int w = int.Parse(resX.Text), h = int.Parse(resY.Text);
+            if (w >= 128 && w <= 4096 && h >= 128 && h <= 4096)
             {
-                ImageEditor.Source = new CroppedBitmap((BitmapSource)frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds), new Int32Rect(currentImage.CropXOffset, currentImage.CropYOffset,currentImage.CropWidth,currentImage.CropHeight));
+                return new Resolution()
+                {
+                    Width = w,
+                    Height = h
+                };
+            }
+        }
+        else
+        {
+            DebugText($"Resolution {resX}x{resY} is out of range (128-4096)!");
+        }
+
+        DebugText($"Resolution {resX.Text} x {resY.Text} is incorrect! Set default resolution");
+        SetResolutionInUI();
+
+        return new Resolution() { Width = 512, Height = 512 };
+    }
+
+
+    private bool isNameExist()
+    {
+        return !string.IsNullOrEmpty(filename.Text) && filename.Text.Length < 255;
+    }
+
+    private void SetResolutionInUI(Resolution resolution = null)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            if (resolution == null)
+            {
+                vm.ResolutionWidth = DEFAULT_RESOLUTION;
+                vm.ResolutionHeight = DEFAULT_RESOLUTION;
             }
             else
             {
-                ImageEditor.Source = frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds);
+                vm.ResolutionWidth = resolution.Width.ToString();
+                vm.ResolutionHeight = resolution.Height.ToString();
             }
-            PromptEditor.Text = currentImage.PromptText;
         }
     }
 
-/*private void LoadEdit_OnClick(object sender, RoutedEventArgs e)
-{
-    imageSaved_array = _imageSaver.LoadFromJson();
-    ListBox.ItemsSource = imageSaved_array;
-}*/
+
+    private string GetPromtFromUI()
+    {
+        if (!string.IsNullOrEmpty(prompt.Text))
+        {
+            return prompt.Text;
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    private void DebugText(string text)
+    {
+        if (DataContext is MainViewModel vs)
+        {
+            vs.DebugText(text);
+        }
+    }
+
+
+    private void SendImageToUI(CroppedImage croppedImage)
+    {
+        if (croppedImage == null) return;
+
+
+        if (croppedImage.IsCropped && croppedImage.Cropped != null)
+        {
+            SendImageToUI(croppedImage.Cropped);
+        }
+        else
+        {
+            SendImageToUI(croppedImage.Original);
+        }
+    }
+
+    private void SendImageToUI(BitmapSource image)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.ImageOriginal = image;
+        }
+    }
+
+    private void SendPromptToUI(CroppedImage croppedImage)
+    {
+        SendPromptToUI(croppedImage.PromptText);
+    }
+
+    private void SendPromptToUI(string prompt)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.UiPrompt = prompt;
+        }
+    }
 
     private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (croppedImages != null)
+        if (ListBox.SelectedItem is CroppedImage selectedImage)
         {
-            if (ListBox.SelectedItem is CroppedImage frame)
-            {
-                currentImage = frame;
-                //BitmapSource a = frame_extractor.GetFrameAsBitmapSource(currentImage.Seconds);
-                UpdateEditorUI();
-            }
+            DebugText($"Selected image {selectedImage.Seconds}");
+            SendImageToUI(selectedImage);
+            SendPromptToUI(selectedImage);
+            SetMetaData(selectedImage);
         }
-
-
-        /*if (ListBox.SelectedItem is SavedFrame frame)
-        {
-            editorFrame = frame;
-
-            frame_extractor.LoadVideo(frame.FilePath);
-            /*editorSeconds = frame.Seconds;
-            PromptEditor.Text = frame.Prompt;#2##1#
-            PromptEditor.Text = editorFrame.Prompt;
-            UpdateEditorUI();
-        }*/
     }
-
 
 
     private void PromptEditor_OnKeyDown(object sender, KeyEventArgs e)
     {
-        String a = PromptEditor.Text;
-        currentImage.PromptText = a;
+        //    String a = PromptEditor.Text;
+        //  currentImage.PromptText = a;
     }
 
+    ///deprecated
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
-        CropImage();
+        //CropImage();
     }
 }
