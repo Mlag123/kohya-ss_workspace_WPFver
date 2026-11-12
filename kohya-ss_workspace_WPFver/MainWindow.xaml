@@ -18,18 +18,18 @@
         <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="#66000000" />
             <Setter Property="BorderBrush" Value="#33FFFFFF" />
-            <Setter Property="Foreground" Value="#FFFFFFFF" /> 
-    
+            <Setter Property="Foreground" Value="#FFFFFFFF" />
+
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#AA1E1E1E" /> 
+                    <Setter Property="Background" Value="#AA1E1E1E" />
                     <Setter Property="BorderBrush" Value="#FFFF6D00" />
                 </Trigger>
-        
+
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#FF121212" /> 
+                    <Setter Property="Background" Value="#FF121212" />
                 </Trigger>
-        
+
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Background" Value="#33FFFFFF" />
                     <Setter Property="Foreground" Value="#55FFFFFF" />
@@ -92,18 +92,9 @@
             </Grid.RowDefinitions>
 
             <Menu Grid.Row="0">
-                <MenuItem Header="W">
-                    <MenuItem Header="WorkInProgress" />
-                    <MenuItem Header="WorkInProgress" />
-                    <Separator />
-                    <MenuItem Header="WorkInProgress" />
-                </MenuItem>
-                <MenuItem Header="I">
-                    <MenuItem Header="WorkInProgress" />
-                    <MenuItem Header="WorkInProgress" />
-                </MenuItem>
-                <MenuItem Header="P">
-                    <MenuItem Header="WorkInProgress" />
+                <MenuItem Header="Info">
+                    <MenuItem Header="About" Command="{Binding ClickAboutCommand}" />
+                    <MenuItem Header="GitHub" Command="{Binding GitHubActionCommand}"/>
                 </MenuItem>
             </Menu>
 

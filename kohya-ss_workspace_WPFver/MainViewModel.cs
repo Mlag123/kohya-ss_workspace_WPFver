@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -28,6 +29,7 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty] private int progressValue;
     [ObservableProperty] private int progressMax;
     [ObservableProperty] private bool isGenerating;
+    private string currentVersion = "1.0.4.1v";
 
     public string imageFolderPath;
     public event Action<string> FileSelected;
@@ -48,21 +50,21 @@ public partial class MainViewModel : ObservableObject
         GeneratePaws(300);
     }
 
-    
+
     public void ExplodePaws(double width, double height)
     {
         var rnd = new Random();
         foreach (var paw in Paws)
         {
-            paw.VelocityX += (rnd.NextDouble() - 0.5) * 1500; 
-            paw.VelocityY += (rnd.NextDouble() - 0.5) * 1500; 
-        
+            paw.VelocityX += (rnd.NextDouble() - 0.5) * 1500;
+            paw.VelocityY += (rnd.NextDouble() - 0.5) * 1500;
+
 
             paw.HomeX = rnd.Next(0, (int)width);
             paw.HomeY = rnd.Next(0, (int)height);
         }
     }
-    
+
     private void GeneratePaws(int count)
     {
         for (int i = 0; i < count; i++)
@@ -73,88 +75,88 @@ public partial class MainViewModel : ObservableObject
             {
                 X = _rnd.Next(0, 1200),
                 Y = _rnd.Next(0, 800),
-                HomeX = x, 
+                HomeX = x,
                 HomeY = y,
                 Rotation = _rnd.Next(0, 360),
-                Scale = 0.5 + _rnd.NextDouble() * 0.5, 
-                Color = "#11FFFFFF", 
-                RotationSpeed = (_rnd.NextDouble() - 0.5) * 20 
+                Scale = 0.5 + _rnd.NextDouble() * 0.5,
+                Color = "#11FFFFFF",
+                RotationSpeed = (_rnd.NextDouble() - 0.5) * 20
             });
         }
     }
 
-   public void UpdatePaws(TimeSpan renderTime, Point mousePosition, double width, double height)
-{
-    if (_lastRenderTime == TimeSpan.Zero)
+    public void UpdatePaws(TimeSpan renderTime, Point mousePosition, double width, double height)
     {
+        if (_lastRenderTime == TimeSpan.Zero)
+        {
+            _lastRenderTime = renderTime;
+            return;
+        }
+
+        double deltaTime = (renderTime - _lastRenderTime).TotalSeconds;
         _lastRenderTime = renderTime;
-        return;
-    }
 
-    double deltaTime = (renderTime - _lastRenderTime).TotalSeconds;
-    _lastRenderTime = renderTime;
+        if (deltaTime <= 0 || deltaTime > 0.1) return;
 
-    if (deltaTime <= 0 || deltaTime > 0.1) return;
-
-    foreach (var paw in Paws)
-    {
-        // Вращение
-        paw.Rotation += paw.RotationSpeed * deltaTime;
-
-        // Взаимодействие с мышью
-        double dxMouse = paw.X - mousePosition.X;
-        double dyMouse = paw.Y - mousePosition.Y;
-        double distMouse = Math.Sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-
-        if (distMouse < 150 && distMouse > 0)
+        foreach (var paw in Paws)
         {
-            paw.Color = "#FFFF6D00"; // Оранжевый
-            double force = (150 - distMouse) / 150.0;
-            paw.VelocityX += (dxMouse / distMouse) * force * 800 * deltaTime;
-            paw.VelocityY += (dyMouse / distMouse) * force * 800 * deltaTime;
-        }
-        else
-        {
-            paw.Color = "#11FFFFFF"; 
-        }
+            // Вращение
+            paw.Rotation += paw.RotationSpeed * deltaTime;
 
-        // Пружина (притяжение к дому)
-        double dxHome = paw.HomeX - paw.X;
-        double dyHome = paw.HomeY - paw.Y;
-        double springStrength = 2.0; 
-        paw.VelocityX += dxHome * springStrength * deltaTime;
-        paw.VelocityY += dyHome * springStrength * deltaTime;
+            // Взаимодействие с мышью
+            double dxMouse = paw.X - mousePosition.X;
+            double dyMouse = paw.Y - mousePosition.Y;
+            double distMouse = Math.Sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
 
-        paw.X += paw.VelocityX * deltaTime;
-        paw.Y += paw.VelocityY * deltaTime;
+            if (distMouse < 150 && distMouse > 0)
+            {
+                paw.Color = "#FFFF6D00"; // Оранжевый
+                double force = (150 - distMouse) / 150.0;
+                paw.VelocityX += (dxMouse / distMouse) * force * 800 * deltaTime;
+                paw.VelocityY += (dyMouse / distMouse) * force * 800 * deltaTime;
+            }
+            else
+            {
+                paw.Color = "#11FFFFFF";
+            }
 
-        paw.VelocityX *= 0.9;
-        paw.VelocityY *= 0.9;
+            // Пружина (притяжение к дому)
+            double dxHome = paw.HomeX - paw.X;
+            double dyHome = paw.HomeY - paw.Y;
+            double springStrength = 2.0;
+            paw.VelocityX += dxHome * springStrength * deltaTime;
+            paw.VelocityY += dyHome * springStrength * deltaTime;
+
+            paw.X += paw.VelocityX * deltaTime;
+            paw.Y += paw.VelocityY * deltaTime;
+
+            paw.VelocityX *= 0.9;
+            paw.VelocityY *= 0.9;
 
 
-        if (paw.X < 0)
-        {
-            paw.X = 0;
-            paw.VelocityX *= -0.8; 
-        }
-        else if (paw.X > width)
-        {
-            paw.X = width;
-            paw.VelocityX *= -0.8;
-        }
+            if (paw.X < 0)
+            {
+                paw.X = 0;
+                paw.VelocityX *= -0.8;
+            }
+            else if (paw.X > width)
+            {
+                paw.X = width;
+                paw.VelocityX *= -0.8;
+            }
 
-        if (paw.Y < 0)
-        {
-            paw.Y = 0;
-            paw.VelocityY *= -0.8;
-        }
-        else if (paw.Y > height)
-        {
-            paw.Y = height;
-            paw.VelocityY *= -0.8;
+            if (paw.Y < 0)
+            {
+                paw.Y = 0;
+                paw.VelocityY *= -0.8;
+            }
+            else if (paw.Y > height)
+            {
+                paw.Y = height;
+                paw.VelocityY *= -0.8;
+            }
         }
     }
-}
 
     public void UpdateTimeline(double seconds, BitmapSource image)
     {
@@ -168,6 +170,23 @@ public partial class MainViewModel : ObservableObject
         VideoTimelineText = $"{minutes}:{secs}    res:{w}:{h}";
     }
 
+
+    [RelayCommand]
+    private void ClickAbout()
+    {
+        var about = new AboutWindow();
+        about.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void GitHubAction()
+    {
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "https://github.com/Mlag123/kohya-ss_workspace_WPFver",
+            UseShellExecute = true
+        });
+    }
 
     [RelayCommand]
     private void FolderPicker()

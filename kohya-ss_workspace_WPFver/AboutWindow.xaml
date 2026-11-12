@@ -1,0 +1,32 @@
+﻿<Controls:MetroWindow x:Class="kohya_ss_workspace_WPFver.AboutWindow"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+                      Title="About" Height="300" Width="400"
+                      WindowStartupLocation="CenterOwner"
+                      ResizeMode="NoResize"
+                      ShowMaxRestoreButton="False"
+                      ShowMinButton="False">
+    
+    <Grid Background="#1E1E1E">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Image Source="/Images/ico_high_res.png" Width="100" Height="100" Margin="0,0,0,20"/>
+            
+            <TextBlock Text="Kohya-ss Workspace" 
+                       Foreground="White" FontSize="24" FontWeight="Bold" 
+                       HorizontalAlignment="Center" Margin="0,0,0,10"/>
+            
+            <TextBlock Text="Developed by MLag" 
+                       Foreground="#AAAAAA" FontSize="16" 
+                       HorizontalAlignment="Center" Margin="0,0,0,5"/>
+            
+            <TextBlock x:Name="VER_NAME" Text="{Binding Version}" 
+                       Foreground="#AAAAAA" FontSize="14" 
+                       HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            
+            <Button Content="Close" Width="100" Height="30" 
+                    Command="{Binding CloseCommand}" 
+                    Background="#66000000" BorderBrush="#33FFFFFF" Foreground="White"/>
+        </StackPanel>
+    </Grid>
+</Controls:MetroWindow>
