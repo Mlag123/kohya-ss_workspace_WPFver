@@ -11,14 +11,30 @@
 
     <Controls:MetroWindow.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        <Style TargetType="TextBox">
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
             <Setter Property="Background" Value="#66000000" />
-            <Setter Property="BorderBrush" Value="#33FFFFFF" />
         </Style>
 
-        <Style TargetType="Button">
+        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="#66000000" />
             <Setter Property="BorderBrush" Value="#33FFFFFF" />
+            <Setter Property="Foreground" Value="#FFFFFFFF" />
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#AA1E1E1E" />
+                    <Setter Property="BorderBrush" Value="#FFFF6D00" />
+                </Trigger>
+
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF121212" />
+                </Trigger>
+
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#33FFFFFF" />
+                    <Setter Property="Foreground" Value="#55FFFFFF" />
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="ListBox">
@@ -76,18 +92,9 @@
             </Grid.RowDefinitions>
 
             <Menu Grid.Row="0">
-                <MenuItem Header="W">
-                    <MenuItem Header="WorkInProgress" />
-                    <MenuItem Header="WorkInProgress" />
-                    <Separator />
-                    <MenuItem Header="WorkInProgress" />
-                </MenuItem>
-                <MenuItem Header="I">
-                    <MenuItem Header="WorkInProgress" />
-                    <MenuItem Header="WorkInProgress" />
-                </MenuItem>
-                <MenuItem Header="P">
-                    <MenuItem Header="WorkInProgress" />
+                <MenuItem Header="Info">
+                    <MenuItem Header="About" Command="{Binding ClickAboutCommand}" />
+                    <MenuItem Header="GitHub" Command="{Binding GitHubActionCommand}"/>
                 </MenuItem>
             </Menu>
 
@@ -121,12 +128,13 @@
                                    Stretch="Uniform"
                                    Source="{Binding ImageOriginal}" />
 
-                            <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#5500FF00" Stroke="Lime"
+                            <Rectangle Grid.Column="1" x:Name="SelectionRect" Fill="#4Df96a0c" Stroke="#f96a0c"
                                        StrokeThickness="2" Visibility="Collapsed">
                             </Rectangle>
                         </Canvas>
 
-                        <ListBox x:Name="ListBox" Grid.Column="0" Background="Transparent"  ItemsSource="{Binding CroppedImages}"
+                        <ListBox x:Name="ListBox" Grid.Column="0" Background="Transparent"
+                                 ItemsSource="{Binding CroppedImages}"
                                  SelectionChanged="MyListBox_SelectionChanged">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
@@ -186,9 +194,11 @@
                                 <ColumnDefinition></ColumnDefinition>
                                 <ColumnDefinition></ColumnDefinition>
                             </Grid.ColumnDefinitions>
+
                             <TextBox x:Name="resX" Text="{Binding ResolutionWidth}" Grid.Column="0" Margin="2"
                                      PreviewTextInput="NumberValidationTextBox"
                                      Controls:TextBoxHelper.Watermark="Resolution W">
+
                             </TextBox>
                             <TextBox x:Name="resY" Grid.Column="1" Text="{Binding ResolutionHeight}" Margin="2"
                                      PreviewTextInput="NumberValidationTextBox"
