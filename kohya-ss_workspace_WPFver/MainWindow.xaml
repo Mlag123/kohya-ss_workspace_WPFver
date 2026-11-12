@@ -78,10 +78,23 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <!-- Выводим секунды с форматированием -->
-                                    <TextBlock Text="{Binding Seconds, StringFormat={}{0:F2} сек}" FontWeight="Bold"
-                                               Margin="0,0,10,0" />
-                                    <!-- Выводим промпт -->
+                                    <TextBlock FontWeight="Bold" Margin="0,0,10,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="{Binding Seconds, StringFormat={}{0:F2} сек}" />
+                                                <Setter Property="Visibility" Value="Visible" />
+                        
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Seconds}" Value="-1">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <TextBlock Text="{Binding SourceFileImageName}" FontWeight="Bold" Margin="0,0,10,0" />
+
                                     <TextBlock Text="{Binding Prompt}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                             </DataTemplate>
