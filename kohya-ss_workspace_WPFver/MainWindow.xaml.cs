@@ -43,6 +43,11 @@ public partial class MainWindow : MetroWindow
     private bool _isUpdatingFromList = false;
     private double SLIDER_ZERO = 0;
 
+    private int _frameCount = 0;
+    private DateTime _lastFpsUpdate = DateTime.Now;
+    private double _currentFps = 0;
+
+
     [DllImport("kernel32.dll")]
     static extern bool AllocConsole();
 
@@ -57,14 +62,42 @@ public partial class MainWindow : MetroWindow
 
         //AllocConsole(); //debug system console
         InitializeComponent();
+
+
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
+        SizeChanged += (s, e) => 
+        {
+        };
         _viewModel.FileSelected += OnFileSelected;
         _viewModel.SaveButtonClick += SaveButtonImage;
         _viewModel.GenerateButtonClick += Generate;
         _viewModel.OpenFolderDialog += LoadImagesFromFolder;
+        CompositionTarget.Rendering += OnRendering;
+
 
         Init();
+    }
+    
+    private void ParallaxContainer_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.ExplodePaws(e.NewSize.Width, e.NewSize.Height);
+        }
+    }
+    
+
+    private void OnRendering(object? sender, EventArgs e)
+    {
+        if (e is not RenderingEventArgs args) return;
+
+        var mousePos = Mouse.GetPosition(ParallaxContainer);
+
+        if (DataContext is MainViewModel vm)
+        {
+            vm.UpdatePaws(args.RenderingTime, mousePos, ParallaxContainer.ActualWidth, ParallaxContainer.ActualHeight);
+        }
     }
 
 
