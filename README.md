@@ -53,7 +53,9 @@ If you crop a frame from a video, it will automatically be added to the list. If
 To build this project from source, you will need:
 * **.NET 10.0 SDK** (or newer)
 * **Git** (optional, for cloning the repository)
-* **JetBrains Rider** or **Visual Studio 2022** (with .NET desktop development workload
+* **JetBrains Rider** or **Visual Studio 2022** (with .NET desktop development workload)
+
+### Starting `build.bat` or we continue following the instructions
 
 ### Restore NuGet dependencies:
 `dotnet restore`

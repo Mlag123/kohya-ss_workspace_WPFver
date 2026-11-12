@@ -10,6 +10,13 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+	<ItemGroup>
+		<None Include="native\ffmpeg\*.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<Link>runtimes\win-x64\native\%(Filename)%(Extension)</Link>
+		</None>
+	</ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
       <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
