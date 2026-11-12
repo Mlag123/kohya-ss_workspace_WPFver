@@ -1,1 +1,13 @@
 /kohya-ss_workspace_WPFver/bin/
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# Rider / Visual Studio
+.idea/
+.vs/
+*.user
