@@ -179,7 +179,17 @@
                 <Button Grid.Column="2" x:Name="generate" Command="{Binding GenerateCommand}" Content="GENERATE!"
                         IsEnabled="True" Visibility="Visible">
                 </Button>
-                <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}" Content="File Picker"></Button>
+                
+                <Grid Grid.Column="0" ShowGridLines="True" >
+                   <Grid.ColumnDefinitions>
+                       <ColumnDefinition></ColumnDefinition>
+                       <ColumnDefinition></ColumnDefinition>
+                   </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}" Content="Video Picker"></Button>
+                    <Button Grid.Column="1" x:Name="FolderPicker" Command="{Binding FolderPickerCommand}" Content="Images Picker"></Button>
+
+                </Grid>
+                
 
                 <Button Grid.Column="3"  Visibility="Collapsed" Content="Crop"></Button>
                 <Button Grid.Column="1" x:Name="outputFolderPicker" Command="{Binding OutputPickerCommand}"
