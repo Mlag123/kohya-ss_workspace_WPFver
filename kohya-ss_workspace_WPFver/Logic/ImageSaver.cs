@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
@@ -13,10 +14,11 @@ public class ImageSaver
     private static readonly Random rnd = new Random();
     private string png_format = ".png";
     private string text_format = ".txt";
-    private static string json_format = ".json";
-    private string jsonFile = temp_folder + "/" + "saved" + json_format;
 
 
+    /// <summary>
+    /// Deprecated
+    /// </summary>
     public static void initFolders()
     {
         if (!Directory.Exists(temp_folder))
@@ -25,112 +27,88 @@ public class ImageSaver
         }
     }
 
-    private List<SavedFrame> savedFrames = new List<SavedFrame>();
 
-    public void SaveToJson(string filename, int nW, int nH, double seconds, string prompt, string source_filepath)
+    public void generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution)
     {
-        if (File.Exists(jsonFile) && savedFrames.Count == 0)
+        
+        
+        if (!Directory.Exists(outputPath))
         {
-            string existingJson = File.ReadAllText(jsonFile);
-            savedFrames = JsonSerializer.Deserialize<List<SavedFrame>>(existingJson) ?? new List<SavedFrame>();
+            Directory.CreateDirectory(outputPath);
         }
-
-        double epsilon = 0.0001;
-        if (savedFrames.Any(f => Math.Abs(f.Seconds - seconds) < epsilon))
+        
+        Console.WriteLine("Generating Cropped Images");
+        for (int i = 0; i < croppedImages.Count; i++)
         {
-            throw new TakeException("The frame already exists");
-            return;
-        }
+            string pngoutPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + png_format;
+            string textPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + text_format;
 
-        var newFrame = new SavedFrame
-        {
-            ImageName = filename,
-            nWidth = nW,
-            nHeight = nH,
-            Seconds = seconds,
-            Prompt = prompt,
-            FilePath = source_filepath
-        };
-        savedFrames.Add(newFrame);
-
-        string json = JsonSerializer.Serialize(savedFrames, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(jsonFile, json);
-    }
-
-
-    public void ResetState()
-    {
-        string bak_json = temp_folder + "/" + getRandName() + "_bak" + json_format;
-
-        try
-        {
-            if (File.Exists(jsonFile))
+            if (croppedImages[i].IsCropped)
             {
-                savedFrames.Clear();
-                File.Move(jsonFile, bak_json);
+                var finalImage = ResizeImage(croppedImages[i].Cropped, resolution);
+                savePicture(finalImage, pngoutPath);
+                SavePromptToFile(croppedImages[i].PromptText, textPath);
+            }
+            else
+            {
+                var finalImage = ResizeImage(croppedImages[i].Original, resolution);
+                savePicture(finalImage, pngoutPath);
+                SavePromptToFile(croppedImages[i].PromptText, textPath);
+
             }
         }
-        catch (Exception e)
-        {
-            throw new Exception(e.Message);
-        }
     }
 
-    public void UpdateFrame(double seconds, SavedFrame updateData)
+    private void savePicture(BitmapSource source, string path)
     {
-        var frames = LoadFromJson();
-
-        double epsilon = 0.0001;
-        var frame = frames.FirstOrDefault(f => Math.Abs(f.Seconds - seconds) < epsilon);
-
-        if (frame == null)
-            throw new Exception($"Frame with seconds={seconds} not found");
-
-        // Меняем поля найденного объекта на данные из updateData
-        frame.ImageName = updateData.ImageName;
-        frame.nWidth = updateData.nWidth;
-        frame.nHeight = updateData.nHeight;
-        frame.Prompt = updateData.Prompt;
-        frame.FilePath = updateData.FilePath;
-        // Seconds НЕ меняем — это ключ поиска
-
-        string json = JsonSerializer.Serialize(frames, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(jsonFile, json);
-    }
-    
-    
-    
-
-
-    public void savePromptAndImage(string prompt, BitmapSource bitmap)
-    {
-        string rand_name = getRandName();
-        string imagePath = temp_folder + "/" + rand_name + png_format;
-        string textPath = temp_folder + "/" + rand_name + text_format;
-
         PngBitmapEncoder encoder = new PngBitmapEncoder();
-        encoder.Frames.Add(BitmapFrame.Create(bitmap));
-
-        using (FileStream stream = new FileStream(imagePath, FileMode.Create))
+        encoder.Frames.Add(BitmapFrame.Create(source));
+        using (FileStream stream = new FileStream(path, FileMode.Create))
         {
             encoder.Save(stream);
         }
-
-        File.WriteAllText(textPath, prompt);
     }
 
-    public List<SavedFrame> LoadFromJson()
+    private BitmapSource ResizeImage(BitmapSource source, Resolution resolution)
     {
-        if (!File.Exists(jsonFile))
+        double scale = Math.Min((double)resolution.Width / source.PixelWidth,
+            (double)resolution.Height / source.PixelHeight);
+
+        int newWidth = (int)(source.PixelWidth * scale);
+        int newHeight = (int)(source.PixelHeight * scale);
+
+        TransformedBitmap scaledImage = new TransformedBitmap(source, new ScaleTransform(scale, scale));
+        scaledImage.Freeze();
+
+        var drawingVisual = new DrawingVisual();
+    
+        // 1. Рисуем ВНУТРИ using
+        using (DrawingContext drawingContext = drawingVisual.RenderOpen())
         {
-            return new List<SavedFrame>();
-        }
+            drawingContext.DrawRectangle(Brushes.Black, null, new Rect(0, 0, resolution.Width, resolution.Height));
+            double x = (resolution.Width - newWidth) / 2;
+            double y = (resolution.Height - newHeight) / 2;
+            drawingContext.DrawImage(scaledImage, new Rect(x, y, newWidth, newHeight));
+        } // <--- КОНТЕКСТ ЗАКРЫВАЕТСЯ ЗДЕСЬ. Всё зафиксировано.
 
-        string json = File.ReadAllText(jsonFile);
+        // 2. Рендерим ПОСЛЕ закрытия контекста
+        var renderTarget = new RenderTargetBitmap(resolution.Width, resolution.Height, 96, 96, PixelFormats.Pbgra32);
+        renderTarget.Render(drawingVisual);
+        renderTarget.Freeze();
 
-        var frames = JsonSerializer.Deserialize<List<SavedFrame>>(json);
+        return renderTarget;
+    }
 
-        return frames ?? new List<SavedFrame>();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="prompt"></param>
+    /// <param name="bitmap"></param>
+    public void SavePromptToFile(string prompt,string textPath)
+    {
+     
+        File.WriteAllText(textPath, prompt);
     }
 
 
@@ -177,10 +155,10 @@ public class ImageSaver
             finalImage = originalFrame;
         }
 
-        
+
         // Считаем коэффициент (выбираем наименьший, чтобы влезло в рамки)
         double scale = Math.Min((double)resX / finalImage.PixelWidth, (double)resY / finalImage.PixelHeight);
-        
+
         int newWidth = (int)(finalImage.PixelWidth * scale);
         int newHeight = (int)(finalImage.PixelHeight * scale);
 
@@ -194,7 +172,7 @@ public class ImageSaver
         {
             // Заливаем фон черным (или можно Brushes.Transparent)
             drawingContext.DrawRectangle(Brushes.Black, null, new Rect(0, 0, resX, resY));
-            
+
             // Центрируем картинку
             double x = (resX - newWidth) / 2.0;
             double y = (resY - newHeight) / 2.0;
@@ -223,7 +201,7 @@ public class ImageSaver
         File.WriteAllText(textPath, croppedImage.PromptText);
     }*/
 
-    
+
     /*
      *
      *
@@ -242,19 +220,22 @@ public class ImageSaver
             {
                 encoder.Save(fileStream);
             }
-            
+
             File.WriteAllText(outputFolder + "/" + frames[i].ImageName + "_" + i + ".txt", frames[i].Prompt);
-            
+
         }
 
 
     }
 
-     * 
+     *
      */
 
-    
 
+    /// <summary>
+    /// Deprecated
+    /// </summary>
+    /// <returns></returns>
     public static string getRandName()
     {
         int length = 12;

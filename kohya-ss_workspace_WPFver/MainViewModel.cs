@@ -1,7 +1,9 @@
-﻿using System.Windows.Controls;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using kohya_ss_workspace_WPFver.Logic;
 using Microsoft.Win32;
 
 namespace kohya_ss_workspace_WPFver;
@@ -16,13 +18,17 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private BitmapSource imageOriginal;
 
+    [ObservableProperty]
+    private ObservableCollection<CroppedImage> croppedImages = new();
     [ObservableProperty] private string imageName;
     [ObservableProperty] private BitmapSource imageCropped; // пока не знаю, нужно ли оно
     [ObservableProperty] private string consoleLog = string.Empty;
     [ObservableProperty] 
     private string videoTimelineText = "00:00    res:0:0";
         
-        public event Action<string> FileSelected;
+    public event Action<string> FileSelected;
+    public event  Action SaveButtonClick;
+    public event  Action GenerateButtonClick;
     public string OutputPath { get; set; }
 
     public string FolderToSource { get; set; }
@@ -51,7 +57,7 @@ public partial class MainViewModel : ObservableObject
             {
                 FolderToSource = openFileDialog.FileName;
                 FileSelected?.Invoke(openFileDialog.FileName);
-                DebugText("Folder {openFileDialog.FileName}");
+                DebugText($"Folder {openFileDialog.FileName}");
             }
             else
             {
@@ -82,7 +88,7 @@ public partial class MainViewModel : ObservableObject
             if (dialog.FolderName != null)
             {
                 OutputPath = dialog.FolderName;
-                DebugText("Output folder {dialog.FolderName}");
+                DebugText($"Output folder {OutputPath}");
             }
             else
             {
@@ -100,12 +106,16 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void SaveBut()
     {
-        
+        SaveButtonClick?.Invoke();
+
     }
 
+
     [RelayCommand]
-    private void OutputFolderPicker()
+    private void Generate()
     {
-        // Логика выбора папки
+        GenerateButtonClick?.Invoke();
     }
+
+   
 }

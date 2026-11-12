@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -25,7 +26,7 @@ public partial class MainWindow : MetroWindow
     private Point _startPoint;
     private FrameExtractor frame_extractor;
 
-    private List<CroppedImage> croppedImages;
+    //  private ObservableCollection<CroppedImage> croppedImages;
     private CroppedImage currentImage;
     private bool isCropped = false;
     private int scaleX, scaleY;
@@ -33,6 +34,8 @@ public partial class MainWindow : MetroWindow
 
     private MainViewModel _viewModel;
     private const string DEFAULT_RESOLUTION = "512";
+    private CroppedImage selectedCroppedImage;
+    private bool _isUpdatingFromList = false;
 
     public MainWindow()
     {
@@ -40,6 +43,8 @@ public partial class MainWindow : MetroWindow
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
         _viewModel.FileSelected += OnFileSelected;
+        _viewModel.SaveButtonClick += SaveButtonImage;
+        _viewModel.GenerateButtonClick += Generate;
 
         Init();
     }
@@ -74,9 +79,61 @@ public partial class MainWindow : MetroWindow
         cropManager = new CropManager();
         frame_extractor = new FrameExtractor();
         _imageSaver = new ImageSaver();
-        croppedImages = new List<CroppedImage>();
-        //  VideoTimelineLayout.Text = "00:00";
-        //   slider.Maximum = frame_extractor.getDuration();
+    }
+
+
+    public void Generate()
+    {
+        _imageSaver.generate(GetCroppedImages(),_viewModel.OutputPath,GetNewResolution());
+    }
+
+    private ObservableCollection<CroppedImage> GetCroppedImages()
+    {
+        return _viewModel.CroppedImages;
+    }
+
+    private MainViewModel getMainViewModel()
+    {
+        if (DataContext is MainViewModel vs)
+        {
+            return vs;
+        }
+
+        DebugText("Critical Error!");
+        throw new InvalidOperationException("DataContext is not MainViewModel!");
+    }
+
+    private string getOutputPath()
+    {
+        return _viewModel.OutputPath;
+    }
+
+    private void SaveButtonImage()
+    {
+        if (currentImage != null)
+        {
+            if (!isNameExist())
+            {
+                DebugText("Image name is empty!");
+                return;
+            }
+
+            var resolution = GetNewResolution();
+
+            CroppedImage origImage = new CroppedImage()
+            {
+                IsCropped = false,
+                ImageName = filename.Text, 
+                FilePath = videoPath,
+                Original = currentImage.Original,
+                Cropped = null,
+                PromptText = GetPromtFromUI(),
+                Seconds = currentImage.Seconds,
+                NewResizeWidth = resolution.Width,
+                NewResizeHeight = resolution.Height,
+            };
+            AddCroppedImageToListBox(origImage);
+        }
     }
 
     private void ResetState()
@@ -84,21 +141,11 @@ public partial class MainWindow : MetroWindow
         seconds = 0;
         slider.Value = 0;
         currentImage = new CroppedImage();
-
-        try
-        {
-            _imageSaver.ResetState();
-        }
-        catch (Exception e)
-        {
-            DebugText("Failed to dispose/backup");
-            DebugText(e.GetBaseException().Message);
-        }
     }
 
     private void SetMetaData(CroppedImage croppedImage)
     {
-        if (DataContext is MainViewModel vs)
+        MainViewModel vs = getMainViewModel();
         {
             if (croppedImage.IsCropped)
             {
@@ -113,12 +160,12 @@ public partial class MainWindow : MetroWindow
 
     private void TimeLine_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
+        if (_isUpdatingFromList) return;
         try
         {
             this.seconds = slider.Value;
             currentImage.Seconds = seconds;
             currentImage.Original = frame_extractor.GetFrameAsBitmapSource(seconds);
-
 
             SendImageToUI(currentImage);
             SetMetaData(currentImage);
@@ -196,15 +243,6 @@ public partial class MainWindow : MetroWindow
     }
 
 
-    /// <summary>
-    /// DEPRECARED FUNC
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void SaveBut_OnClick(object sender, RoutedEventArgs e)
-    {
-    }
-
     private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
     {
         e.Handled = new Regex("[^0-9]+").IsMatch(e.Text);
@@ -262,6 +300,10 @@ public partial class MainWindow : MetroWindow
         ResetRectangle();
     }
 
+    private void ResetPromtUI()
+    {
+    }
+
     private bool isImageExist()
     {
         return DataContext is MainViewModel vs && vs.ImageOriginal != null;
@@ -314,26 +356,36 @@ public partial class MainWindow : MetroWindow
             int w = (int)Math.Min(imageWidth - x, imageW);
             int h = (int)Math.Min(imageHeight - y, imageH);
 
-            var resolution = GetNewResolution();
-            CroppedImage cropImg = new CroppedImage()
+            if (w >= 128 && h >= 128)
             {
-                IsCropped = true,
-                ImageName = currentImage.ImageName,
-                FilePath = videoPath,
-                Original = currentImage.Original,
-                Cropped = cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source),
-                PromptText = GetPromtFromUI(),
-                Seconds = currentImage.Seconds,
-                NewResizeWidth = resolution.Width,
-                NewResizeHeight = resolution.Height,
-            };
-            SendImageToUI(cropImg);
-
-            croppedImages.Add(cropImg);
-            ListBox.ItemsSource = null;
-            ListBox.ItemsSource = croppedImages;
-            SendPromptToUI("");
+                var resolution = GetNewResolution();
+                CroppedImage cropImg = new CroppedImage()
+                {
+                    IsCropped = true,
+                    ImageName = filename.Text,
+                    FilePath = videoPath,
+                    Original = currentImage.Original,
+                    Cropped = cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source),
+                    PromptText = GetPromtFromUI(),
+                    Seconds = currentImage.Seconds,
+                    NewResizeWidth = resolution.Width,
+                    NewResizeHeight = resolution.Height,
+                };
+                SendImageToUI(cropImg);
+                // SetMetaData(cropImg);
+                AddCroppedImageToListBox(cropImg);
+                SendPromptToUI("");
+            }
+            else
+            {
+                DebugText("Is cropped size very small!");
+            }
         }
+    }
+
+    private void AddCroppedImageToListBox(CroppedImage cropImg)
+    {
+        _viewModel.CroppedImages.Add(cropImg);
     }
 
 
@@ -370,18 +422,16 @@ public partial class MainWindow : MetroWindow
 
     private void SetResolutionInUI(Resolution resolution = null)
     {
-        if (DataContext is MainViewModel vm)
+
+        if (resolution == null)
         {
-            if (resolution == null)
-            {
-                vm.ResolutionWidth = DEFAULT_RESOLUTION;
-                vm.ResolutionHeight = DEFAULT_RESOLUTION;
-            }
-            else
-            {
-                vm.ResolutionWidth = resolution.Width.ToString();
-                vm.ResolutionHeight = resolution.Height.ToString();
-            }
+            _viewModel.ResolutionWidth = DEFAULT_RESOLUTION;
+            _viewModel.ResolutionHeight = DEFAULT_RESOLUTION;
+        }
+        else
+        {
+            _viewModel.ResolutionWidth = resolution.Width.ToString();
+            _viewModel.ResolutionHeight = resolution.Height.ToString();
         }
     }
 
@@ -398,12 +448,25 @@ public partial class MainWindow : MetroWindow
         }
     }
 
+    private void SetPromptToUI(string prompt)
+    {
+
+        if (string.Equals(prompt, ""))
+        {
+            _viewModel.UiPrompt = "";
+        }
+
+        if (!string.IsNullOrEmpty(prompt))
+        {
+            _viewModel.UiPrompt = prompt;
+        }
+    }
+
     private void DebugText(string text)
     {
-        if (DataContext is MainViewModel vs)
-        {
-            vs.DebugText(text);
-        }
+       
+            _viewModel.DebugText(text);
+        
     }
 
 
@@ -412,7 +475,7 @@ public partial class MainWindow : MetroWindow
         if (croppedImage == null) return;
 
 
-        if (croppedImage.IsCropped && croppedImage.Cropped != null)
+        if (croppedImage.IsCropped)
         {
             SendImageToUI(croppedImage.Cropped);
         }
@@ -424,10 +487,7 @@ public partial class MainWindow : MetroWindow
 
     private void SendImageToUI(BitmapSource image)
     {
-        if (DataContext is MainViewModel vm)
-        {
-            vm.ImageOriginal = image;
-        }
+        _viewModel.ImageOriginal = image;
     }
 
     private void SendPromptToUI(CroppedImage croppedImage)
@@ -437,33 +497,47 @@ public partial class MainWindow : MetroWindow
 
     private void SendPromptToUI(string prompt)
     {
-        if (DataContext is MainViewModel vm)
-        {
-            vm.UiPrompt = prompt;
-        }
+        _viewModel.UiPrompt = prompt;
     }
 
     private void MyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (ListBox.SelectedItem is CroppedImage selectedImage)
         {
+            selectedCroppedImage = selectedImage;
             DebugText($"Selected image {selectedImage.Seconds}");
             SendImageToUI(selectedImage);
             SendPromptToUI(selectedImage);
             SetMetaData(selectedImage);
+            _isUpdatingFromList = true;
+            slider.Value = selectedImage.Seconds;
+            _isUpdatingFromList = false;
+        }
+        else
+        {
+            selectedCroppedImage = null;
         }
     }
 
 
     private void PromptEditor_OnKeyDown(object sender, KeyEventArgs e)
     {
-        //    String a = PromptEditor.Text;
-        //  currentImage.PromptText = a;
+        if (selectedCroppedImage != null && e.Key == Key.Enter)
+        {
+            selectedCroppedImage.PromptText = prompt.Text;
+            DebugText("Prompt saved!");
+            e.Handled = true; // Блокируем только Enter
+        }
     }
 
     ///deprecated
     private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
     {
         //CropImage();
+    }
+
+    private void Slider_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        SetPromptToUI("");
     }
 }

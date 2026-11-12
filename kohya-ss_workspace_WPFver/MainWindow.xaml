@@ -73,7 +73,7 @@
 
                     </Canvas>
 
-                    <ListBox x:Name="ListBox" Grid.Column="0" SelectionChanged="MyListBox_SelectionChanged">
+                    <ListBox x:Name="ListBox" ItemsSource="{Binding CroppedImages}" SelectionChanged="MyListBox_SelectionChanged">
 
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -125,7 +125,7 @@
                     </Grid>
 
                     <StackPanel Grid.Row="0" Grid.Column="1">
-                        <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged"></Slider>
+                        <Slider x:Name="slider" ValueChanged="TimeLine_ValueChanged" PreviewMouseLeftButtonUp="Slider_OnPreviewMouseLeftButtonUp"></Slider>
                         <TextBlock x:Name="VideoTimelineLayout"  FontSize="14" TextWrapping="Wrap" Text="{Binding VideoTimelineText}"></TextBlock>
                     </StackPanel>
 
@@ -139,8 +139,8 @@
 
                         </Grid.RowDefinitions>
 
-                        <TextBox x:Name="prompt" Grid.Row="0" Controls:TextBoxHelper.Watermark="Enter Prompt" Text="{Binding UiPrompt, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                        <Button x:Name="saveBut" Grid.Row="1" Content="Save Picture And Prompt" Click="SaveBut_OnClick"></Button>
+                        <TextBox x:Name="prompt" Grid.Row="0" KeyDown="PromptEditor_OnKeyDown" Controls:TextBoxHelper.Watermark="Enter Prompt" Text="{Binding UiPrompt, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        <Button x:Name="saveBut" Grid.Row="1" Command="{Binding SaveButCommand}" Content="Save Picture And Prompt"></Button>
                     </Grid>
 
                     <Grid Grid.Row="1" Grid.Column="0" ShowGridLines="True">
@@ -176,13 +176,13 @@
 
                 </Grid.ColumnDefinitions>
                 <!-- <Button x:Name="LoadEdit" Click="LoadEdit_OnClick" Grid.Column="1" Content="Load edit"></Button> -->
-                <Button Grid.Column="2" x:Name="generate" Click="Generate_OnClick" Content="GENERATE!"
-                        IsEnabled="False" Visibility="Visible">
+                <Button Grid.Column="2" x:Name="generate" Click="Generate_OnClick" Command="{Binding GenerateCommand}" Content="GENERATE!"
+                        IsEnabled="True" Visibility="Visible">
                 </Button>
                 <Button Grid.Column="0" x:Name="filePicker" Command="{Binding FilePickerCommand}" Content="File Picker"></Button>
 
                 <Button Grid.Column="3" Click="ButtonBase_OnClick" Content="Crop"></Button>
-                <Button Grid.Column="1" x:Name="outputFolderPicker" Click="OutputFolderPicker_OnClick"
+                <Button Grid.Column="1" x:Name="outputFolderPicker" Command="{Binding OutputPickerCommand}"
                         Content="Output Folder Picker">
                 </Button>
 
