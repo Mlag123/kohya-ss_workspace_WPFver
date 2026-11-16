@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
@@ -10,8 +11,6 @@ namespace kohya_ss_workspace_WPFver.Logic;
 
 public class ImageSaver
 {
-    private static string temp_folder = "./temp";
-    private static readonly Random rnd = new Random();
     private string png_format = ".png";
     private string text_format = ".txt";
 
@@ -23,16 +22,9 @@ public class ImageSaver
         _viewModel = viewModel;
     }
 
-    public static void initFolders()
-    {
-        if (!Directory.Exists(temp_folder))
-        {
-            Directory.CreateDirectory(temp_folder);
-        }
-    }
 
 
-    public void generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution, Action<int, int> onProgress)
+    public void Generate(ObservableCollection<CroppedImage> croppedImages, string outputPath, Resolution resolution, Action<int, int> onProgress,string newFileName)
     {
         if (string.IsNullOrEmpty(outputPath))
         {
@@ -49,21 +41,22 @@ public class ImageSaver
 
         for (int i = 0; i < total; i++)
         {
-            string pngoutPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + png_format;
-            string textPath = outputPath + "/" + croppedImages[i].ImageName + "_" + i + text_format;
+            Console.WriteLine($"Image name {newFileName}");
+            string pngoutPath = outputPath + "/" +newFileName + "_" + i + png_format;
+            string textPath = outputPath + "/" +newFileName + "_" + i + text_format;
 
             try
             {
                 if (croppedImages[i].IsCropped)
                 {
                     var finalImage = ResizeImage(croppedImages[i].Cropped, resolution);
-                    savePicture(finalImage, pngoutPath);
+                    SavePicture(finalImage, pngoutPath);
                     SavePromptToFile(croppedImages[i].PromptText, textPath);
                 }
                 else
                 {
                     var finalImage = ResizeImage(croppedImages[i].Original, resolution);
-                    savePicture(finalImage, pngoutPath);
+                    SavePicture(finalImage, pngoutPath);
                     SavePromptToFile(croppedImages[i].PromptText, textPath);
                 }
             }
@@ -77,7 +70,7 @@ public class ImageSaver
         }
     }
 
-    private void savePicture(BitmapSource source, string path)
+    private void SavePicture(BitmapSource source, string path)
     {
         PngBitmapEncoder encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(source));

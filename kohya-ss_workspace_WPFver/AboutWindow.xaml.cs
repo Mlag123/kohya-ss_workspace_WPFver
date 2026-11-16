@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using CommunityToolkit.Mvvm.Input;
 using MahApps.Metro.Controls;
 
 namespace kohya_ss_workspace_WPFver;
@@ -11,5 +12,12 @@ public partial class AboutWindow : MetroWindow
     {
         InitializeComponent();
         DataContext = this;
+    }
+
+
+    [RelayCommand]
+    public void CloseButton()
+    {
+        this.Close();
     }
 }

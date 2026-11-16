@@ -13,7 +13,7 @@ public partial  class PawItem : ObservableObject
     
     public double VelocityX { get; set; }
     public double VelocityY { get; set; }
-    public double RotationSpeed { get; set; } // Скорость вращения\
+    public double RotationSpeed { get; set; }
     public double HomeX { get; set; }
     public double HomeY { get; set; }
 }
