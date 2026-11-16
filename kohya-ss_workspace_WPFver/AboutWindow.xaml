@@ -20,12 +20,12 @@
                        Foreground="#AAAAAA" FontSize="16" 
                        HorizontalAlignment="Center" Margin="0,0,0,5"/>
             
-            <TextBlock x:Name="VER_NAME" Text="{Binding Version}" 
+            <TextBlock Text="{Binding Version}" 
                        Foreground="#AAAAAA" FontSize="14" 
                        HorizontalAlignment="Center" Margin="0,0,0,20"/>
             
             <Button Content="Close" Width="100" Height="30" 
-                    Command="{Binding CloseCommand}" 
+                    Command="{Binding CloseButtonCommand}" 
                     Background="#66000000" BorderBrush="#33FFFFFF" Foreground="White"/>
         </StackPanel>
     </Grid>

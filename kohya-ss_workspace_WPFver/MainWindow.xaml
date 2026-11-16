@@ -236,7 +236,7 @@
                                 <RowDefinition></RowDefinition>
                             </Grid.RowDefinitions>
 
-                            <TextBox x:Name="filename" Text="{Binding ImageName}"
+                            <TextBox x:Name="Filename" Text="{Binding ImageName}"
                                      Controls:TextBoxHelper.Watermark="Image Name">
                             </TextBox>
                         </Grid>
