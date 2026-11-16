@@ -1,6 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -22,30 +24,20 @@ namespace kohya_ss_workspace_WPFver;
 /// </summary>
 public partial class MainWindow : MetroWindow
 {
-    private string videoPath = null;
-    private double seconds = 0;
-    private string output_path;
+    private string _videoPath;
+    private double _seconds = 0;
     private ImageSaver _imageSaver;
     private bool _isDragging = false;
     private Point _startPoint;
-    private FrameExtractor frame_extractor;
-    private string ImagesFolderPath;
-
-    //  private ObservableCollection<CroppedImage> croppedImages;
-    private CroppedImage currentImage;
-    private bool isCropped = false;
-    private int scaleX, scaleY;
-    private CropManager cropManager;
-
+    private FrameExtractor _frameExtractor;
+    private string _imagesFolderPath;
+    private CroppedImage _currentImage;
+    private CropManager _cropManager;
     private MainViewModel _viewModel;
-    private const string DEFAULT_RESOLUTION = "512";
-    private CroppedImage selectedCroppedImage;
+    private const string DefaultResolution = "512";
+    private CroppedImage _selectedCroppedImage;
     private bool _isUpdatingFromList = false;
-    private double SLIDER_ZERO = 0;
-
-    private int _frameCount = 0;
-    private DateTime _lastFpsUpdate = DateTime.Now;
-    private double _currentFps = 0;
+    private double _sliderZero = 0;
 
 
     [DllImport("kernel32.dll")]
@@ -54,31 +46,37 @@ public partial class MainWindow : MetroWindow
     public MainWindow()
     {
         RenderOptions.ProcessRenderMode = RenderMode.Default;
-
-
 #if DEBUG
         AllocConsole();
 #endif
-
-        //AllocConsole(); //debug system console
         InitializeComponent();
+        PreInit();
+        Init();
+    }
 
 
+    private void PreInit()
+    {
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
-        SizeChanged += (s, e) => 
-        {
-        };
+        SizeChanged += (s, e) => { };
         _viewModel.FileSelected += OnFileSelected;
         _viewModel.SaveButtonClick += SaveButtonImage;
         _viewModel.GenerateButtonClick += Generate;
         _viewModel.OpenFolderDialog += LoadImagesFromFolder;
         CompositionTarget.Rendering += OnRendering;
-
-
-        Init();
     }
-    
+
+
+    public void Init()
+    {
+        // ImageSaver.initFolders();
+        _currentImage = new CroppedImage() { IsCropped = false };
+        _cropManager = new CropManager();
+        _frameExtractor = new FrameExtractor();
+        _imageSaver = new ImageSaver(_viewModel);
+    }
+
     private void ParallaxContainer_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         if (DataContext is MainViewModel vm)
@@ -86,7 +84,7 @@ public partial class MainWindow : MetroWindow
             vm.ExplodePaws(e.NewSize.Width, e.NewSize.Height);
         }
     }
-    
+
 
     private void OnRendering(object? sender, EventArgs e)
     {
@@ -104,9 +102,9 @@ public partial class MainWindow : MetroWindow
     public void LoadImagesFromFolder(string path)
     {
         ResetState();
-        ImagesFolderPath = path;
+        _imagesFolderPath = path;
 
-        if (!Directory.Exists(ImagesFolderPath)) return;
+        if (!Directory.Exists(_imagesFolderPath)) return;
 
 
         var imagesFile = Directory.GetFiles(path, "*.*", SearchOption.TopDirectoryOnly)
@@ -125,11 +123,10 @@ public partial class MainWindow : MetroWindow
                 isImagesType = true,
                 IsCropped = false,
                 SourceFileImageName = fileName,
-                ImageName = filename.Text,
-                FilePath = videoPath,
+                FilePath = _videoPath,
                 Original = bitmap,
                 Cropped = null,
-                PromptText = GetPromtFromUI(),
+                PromptText = GetPromtFromUi(),
                 Seconds = -1, //When -1,  then it is image. if Second >=0, then it is video frame.
                 NewResizeWidth = resolution.Width,
                 NewResizeHeight = resolution.Height,
@@ -147,29 +144,20 @@ public partial class MainWindow : MetroWindow
         _viewModel.CroppedImages.Clear();
 
 
-        videoPath = path;
-        frame_extractor.LoadVideo(videoPath);
-        slider.Maximum = frame_extractor.getDuration();
+        _videoPath = path;
+        _frameExtractor.LoadVideo(_videoPath);
+        slider.Maximum = _frameExtractor.getDuration();
 
 
-        var bitmap = frame_extractor.GetFrameAsBitmapSource(seconds);
+        var bitmap = _frameExtractor.GetFrameAsBitmapSource(_seconds);
 
         if (bitmap != null && bitmap.CanFreeze) bitmap.Freeze();
 
         SendImageToUI(bitmap);
 
-        currentImage.Original = bitmap;
-        currentImage.Seconds = seconds;
-        SetMetaData(currentImage);
-    }
-
-    public void Init()
-    {
-        // ImageSaver.initFolders();
-        currentImage = new CroppedImage() { IsCropped = false };
-        cropManager = new CropManager();
-        frame_extractor = new FrameExtractor();
-        _imageSaver = new ImageSaver(_viewModel);
+        _currentImage.Original = bitmap;
+        _currentImage.Seconds = _seconds;
+        SetMetaData(_currentImage);
     }
 
 
@@ -182,7 +170,7 @@ public partial class MainWindow : MetroWindow
         _viewModel.ProgressValue = 0;
         _viewModel.IsGenerating = true;
 
-        _imageSaver.generate(
+        _imageSaver.Generate(
             images,
             _viewModel.OutputPath,
             GetNewResolution(),
@@ -194,11 +182,23 @@ public partial class MainWindow : MetroWindow
                     System.Windows.Threading.DispatcherPriority.Background,
                     new Action(delegate { })
                 );
-            }
+            },
+            GetNewFileName()
         );
 
         _viewModel.IsGenerating = false;
         DebugText("Generate end");
+    }
+
+    private string GetNewFileName()
+    {
+        if (string.IsNullOrEmpty(Filename.Text))
+        {
+            DebugText("Filename is empty!");
+            return "";
+        }
+
+        return Filename.Text;
     }
 
     private ObservableCollection<CroppedImage> GetCroppedImages()
@@ -206,16 +206,6 @@ public partial class MainWindow : MetroWindow
         return _viewModel.CroppedImages;
     }
 
-    private MainViewModel getMainViewModel()
-    {
-        if (DataContext is MainViewModel vs)
-        {
-            return vs;
-        }
-
-        DebugText("Critical Error!");
-        throw new InvalidOperationException("DataContext is not MainViewModel!");
-    }
 
     private string getOutputPath()
     {
@@ -224,9 +214,9 @@ public partial class MainWindow : MetroWindow
 
     private void SaveButtonImage()
     {
-        if (currentImage != null)
+        if (_currentImage != null)
         {
-            if (!isNameExist())
+            if (!IsNameExist())
             {
                 DebugText("Image name is empty!");
                 return;
@@ -237,12 +227,11 @@ public partial class MainWindow : MetroWindow
             CroppedImage origImage = new CroppedImage()
             {
                 IsCropped = false,
-                ImageName = filename.Text,
-                FilePath = videoPath,
-                Original = currentImage.Original,
+                FilePath = _videoPath,
+                Original = _currentImage.Original,
                 Cropped = null,
-                PromptText = GetPromtFromUI(),
-                Seconds = currentImage.Seconds,
+                PromptText = GetPromtFromUi(),
+                Seconds = _currentImage.Seconds,
                 NewResizeWidth = resolution.Width,
                 NewResizeHeight = resolution.Height,
             };
@@ -252,24 +241,21 @@ public partial class MainWindow : MetroWindow
 
     private void ResetState()
     {
-        seconds = 0;
+        _seconds = 0;
         slider.Value = 0;
-        currentImage = new CroppedImage();
+        _currentImage = new CroppedImage();
         ResetCroppedImages();
     }
 
     private void SetMetaData(CroppedImage croppedImage)
     {
-        MainViewModel vs = getMainViewModel();
+        if (croppedImage.IsCropped)
         {
-            if (croppedImage.IsCropped)
-            {
-                vs.UpdateTimeline(croppedImage.Seconds, croppedImage.Cropped);
-            }
-            else
-            {
-                vs.UpdateTimeline(croppedImage.Seconds, croppedImage.Original);
-            }
+            _viewModel.UpdateTimeline(croppedImage.Seconds, croppedImage.Cropped);
+        }
+        else
+        {
+            _viewModel.UpdateTimeline(croppedImage.Seconds, croppedImage.Original);
         }
     }
 
@@ -278,12 +264,12 @@ public partial class MainWindow : MetroWindow
         if (_isUpdatingFromList) return;
         try
         {
-            this.seconds = slider.Value;
-            currentImage.Seconds = seconds;
-            currentImage.Original = frame_extractor.GetFrameAsBitmapSource(seconds);
+            this._seconds = slider.Value;
+            _currentImage.Seconds = _seconds;
+            _currentImage.Original = _frameExtractor.GetFrameAsBitmapSource(_seconds);
 
-            SendImageToUI(currentImage);
-            SetMetaData(currentImage);
+            SendImageToUI(_currentImage);
+            SetMetaData(_currentImage);
         }
         catch (Exception)
         {
@@ -320,7 +306,7 @@ public partial class MainWindow : MetroWindow
 
     private void CropCanvas_MouseMove(object sender, MouseEventArgs e)
     {
-        if (isImageExist())
+        if (IsImageExist())
         {
             if (!_isDragging) return;
 
@@ -353,7 +339,7 @@ public partial class MainWindow : MetroWindow
     }
 
 
-    private bool isImageExist()
+    private bool IsImageExist()
     {
         return DataContext is MainViewModel vs && vs.ImageOriginal != null;
     }
@@ -361,13 +347,13 @@ public partial class MainWindow : MetroWindow
 
     private void CropImage()
     {
-        if (!isNameExist())
+        if (!IsNameExist())
         {
             DebugText("Image name is empty!");
             return;
         }
 
-        if (isImageExist() && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 &&
+        if (IsImageExist() && SelectionRect.Visibility == Visibility.Visible && SelectionRect.Width > 0 &&
             SelectionRect.Height > 0)
         {
             double rectX = Canvas.GetLeft(SelectionRect);
@@ -403,11 +389,11 @@ public partial class MainWindow : MetroWindow
             {
                 var resolution = GetNewResolution();
 
-                if (currentImage.isImagesType)
+                if (_currentImage.isImagesType)
                 {
-                    currentImage.IsCropped = true;
-                    currentImage.Cropped = cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source);
-                    SendImageToUI(currentImage);
+                    _currentImage.IsCropped = true;
+                    _currentImage.Cropped = _cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source);
+                    SendImageToUI(_currentImage);
                     SendPromptToUI("");
                 }
                 else
@@ -415,12 +401,11 @@ public partial class MainWindow : MetroWindow
                     CroppedImage cropImg = new CroppedImage()
                     {
                         IsCropped = true,
-                        ImageName = filename.Text,
-                        FilePath = videoPath,
-                        Original = currentImage.Original,
-                        Cropped = cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source),
-                        PromptText = GetPromtFromUI(),
-                        Seconds = currentImage.Seconds,
+                        FilePath = _videoPath,
+                        Original = _currentImage.Original,
+                        Cropped = _cropManager.CropImage(x, y, w, h, (BitmapSource)PictureOutputMedia.Source),
+                        PromptText = GetPromtFromUi(),
+                        Seconds = _currentImage.Seconds,
                         NewResizeWidth = resolution.Width,
                         NewResizeHeight = resolution.Height,
                     };
@@ -468,45 +453,43 @@ public partial class MainWindow : MetroWindow
         }
 
         DebugText($"Resolution {resX.Text} x {resY.Text} is incorrect! Set default resolution");
-        SetResolutionInUI();
+        SetResolutionInUi();
 
         return new Resolution() { Width = 512, Height = 512 };
     }
 
 
-    private bool isNameExist()
+    private bool IsNameExist()
     {
-        return !string.IsNullOrEmpty(filename.Text) && filename.Text.Length < 255;
+        return !string.IsNullOrEmpty(Filename.Text) && Filename.Text.Length < 255;
     }
 
-    private void SetResolutionInUI(Resolution resolution = null)
+    private void SetResolutionInUi(Resolution resolution = null)
     {
         if (resolution == null)
         {
-            _viewModel.ResolutionWidth = DEFAULT_RESOLUTION;
-            _viewModel.ResolutionHeight = DEFAULT_RESOLUTION;
+            _viewModel.ResolutionWidth = DefaultResolution;
+            _viewModel.ResolutionHeight = DefaultResolution;
+            return;
         }
-        else
-        {
-            _viewModel.ResolutionWidth = resolution.Width.ToString();
-            _viewModel.ResolutionHeight = resolution.Height.ToString();
-        }
+
+        _viewModel.ResolutionWidth = resolution.Width.ToString();
+        _viewModel.ResolutionHeight = resolution.Height.ToString();
     }
 
 
-    private string GetPromtFromUI()
+    private string GetPromtFromUi()
     {
         if (!string.IsNullOrEmpty(prompt.Text))
         {
             return prompt.Text;
         }
-        else
-        {
-            return "";
-        }
+
+        return "";
     }
 
-    private void SetPromptToUI(string prompt)
+
+    private void SetPromptToUi(string prompt)
     {
         if (string.Equals(prompt, ""))
         {
@@ -562,19 +545,19 @@ public partial class MainWindow : MetroWindow
             if (_selectedImage.isImagesType)
             {
                 //When true, this picture. Antoher then frame.
-                currentImage = _selectedImage;
-                selectedCroppedImage = _selectedImage;
+                _currentImage = _selectedImage;
+                _selectedCroppedImage = _selectedImage;
                 DebugText($"Selected image {_selectedImage.SourceFileImageName}");
                 SendImageToUI(_selectedImage);
                 SendPromptToUI(_selectedImage);
                 SetMetaData(_selectedImage);
                 _isUpdatingFromList = true;
-                slider.Value = SLIDER_ZERO;
+                slider.Value = _sliderZero;
                 _isUpdatingFromList = false;
             }
             else
             {
-                selectedCroppedImage = _selectedImage;
+                _selectedCroppedImage = _selectedImage;
                 DebugText($"Selected image {_selectedImage.Seconds}");
                 SendImageToUI(_selectedImage);
                 SendPromptToUI(_selectedImage);
@@ -586,25 +569,25 @@ public partial class MainWindow : MetroWindow
         }
         else
         {
-            selectedCroppedImage = null;
+            _selectedCroppedImage = null;
         }
     }
 
 
     private void PromptEditor_OnKeyDown(object sender, KeyEventArgs e)
     {
-        if (selectedCroppedImage != null && e.Key == Key.Enter)
+        if (_selectedCroppedImage != null && e.Key == Key.Enter)
         {
-            selectedCroppedImage.PromptText = prompt.Text;
+            _selectedCroppedImage.PromptText = prompt.Text;
             DebugText("Prompt saved!");
-            e.Handled = true; // Блокируем только Enter
+            e.Handled = true;
         }
     }
 
 
     private void Slider_OnPreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-        SetPromptToUI("");
+        SetPromptToUi("");
     }
 
     private void MenuItem_OnClick(object sender, RoutedEventArgs e)
