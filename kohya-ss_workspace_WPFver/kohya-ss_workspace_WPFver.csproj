@@ -31,6 +31,9 @@
     <ItemGroup>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
         <PackageReference Include="FFMediaToolkit" Version="4.8.1" />
+        <PackageReference Include="LLamaSharp" Version="0.30.0" />
+        <PackageReference Include="LLamaSharp.Backend.Cuda13" Version="0.30.0" />
+        <PackageReference Include="LLamaSharp.Backend.Cuda13.Windows" Version="0.30.0" />
         <PackageReference Include="MahApps.Metro" Version="3.0.0-rc0529" />
         <PackageReference Include="SkiaSharp" Version="4.156.0-preview.1.26512.10" />
         <PackageReference Include="SkiaSharp.Views.WPF" Version="4.156.0-preview.1.26512.10" />

@@ -12,10 +12,12 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using kohya_ss_workspace_WPFver.Ai;
 using kohya_ss_workspace_WPFver.Logic;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using Point = System.Windows.Point;
+
 
 namespace kohya_ss_workspace_WPFver;
 
@@ -47,11 +49,12 @@ public partial class MainWindow : MetroWindow
     {
         RenderOptions.ProcessRenderMode = RenderMode.Default;
 #if DEBUG
-        AllocConsole();
+        //  AllocConsole();
 #endif
         InitializeComponent();
         PreInit();
         Init();
+         new LLamaLoader().run();
     }
 
 
